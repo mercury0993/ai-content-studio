@@ -26,6 +26,24 @@ function handleCopy() {
   navigator.clipboard.writeText(editText.value)
   ElMessage.success('已复制到剪贴板')
 }
+
+async function handleExportMarkdown() {
+  const token = localStorage.getItem('access_token')
+  const resp = await fetch(`/api/v1/export/markdown/${content.value.id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!resp.ok) {
+    ElMessage.error('导出失败')
+    return
+  }
+  const blob = await resp.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `content_${content.value.id.slice(0, 8)}.md`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 </script>
 
 <template>
@@ -36,6 +54,7 @@ function handleCopy() {
         <el-button @click="handleCopy">复制</el-button>
         <el-button v-if="!editing" @click="editing = true">编辑</el-button>
         <el-button v-if="editing" type="primary" @click="handleSave">保存</el-button>
+        <el-button @click="handleExportMarkdown">导出 Markdown</el-button>
         <el-button @click="router.push('/contents')">返回列表</el-button>
       </div>
     </div>
