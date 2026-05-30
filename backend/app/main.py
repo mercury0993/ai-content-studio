@@ -9,6 +9,7 @@ from app.core.security import hash_password
 from app.models.user import User, UserRole
 from app.api.v1.auth import router as auth_router
 from app.api.v1.workspaces import router as workspaces_router
+from app.api.v1.prompts import router as prompts_router
 
 
 @asynccontextmanager
@@ -45,6 +46,7 @@ app.add_middleware(
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(workspaces_router, prefix="/api/v1")
+app.include_router(prompts_router, prefix="/api/v1")
 
 
 @app.get("/api/health")
