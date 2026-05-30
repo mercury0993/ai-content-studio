@@ -32,6 +32,26 @@ const routes = [
         component: () => import('@/views/workspaces/WorkspaceDetail.vue'),
         meta: { title: '空间详情' },
       },
+      {
+        path: 'prompts',
+        component: () => import('@/views/prompts/PromptList.vue'),
+        meta: { title: 'Prompt 管理' },
+      },
+      {
+        path: 'prompts/create',
+        component: () => import('@/views/prompts/PromptCreate.vue'),
+        meta: { title: '新建 Prompt' },
+      },
+      {
+        path: 'prompts/:id/edit',
+        component: () => import('@/views/prompts/PromptEdit.vue'),
+        meta: { title: '编辑 Prompt' },
+      },
+      {
+        path: 'prompts/:id/versions',
+        component: () => import('@/views/prompts/PromptVersions.vue'),
+        meta: { title: '版本历史' },
+      },
     ],
   },
 ]

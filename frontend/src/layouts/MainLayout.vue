@@ -33,6 +33,10 @@ function handleLogout() {
           <el-icon><DataBoard /></el-icon>
           <template #title>数据看板</template>
         </el-menu-item>
+        <el-menu-item index="/prompts">
+          <el-icon><Document /></el-icon>
+          <template #title>Prompt 管理</template>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
