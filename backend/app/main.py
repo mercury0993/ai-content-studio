@@ -11,6 +11,7 @@ from app.api.v1.auth import router as auth_router
 from app.api.v1.workspaces import router as workspaces_router
 from app.api.v1.prompts import router as prompts_router
 from app.api.v1.models import router as models_router
+from app.api.v1.contents import router as contents_router
 
 
 @asynccontextmanager
@@ -49,6 +50,7 @@ app.include_router(auth_router, prefix="/api/v1")
 app.include_router(workspaces_router, prefix="/api/v1")
 app.include_router(prompts_router, prefix="/api/v1")
 app.include_router(models_router, prefix="/api/v1")
+app.include_router(contents_router, prefix="/api/v1")
 
 
 @app.get("/api/health")
