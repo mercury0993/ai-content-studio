@@ -3,5 +3,6 @@ from app.models.workspace import Workspace, WorkspaceMember
 from app.models.prompt import Prompt, PromptVersion
 from app.models.ai_model import AIModel
 from app.models.content import Content, ContentStatus
+from app.models.audit_log import AuditLog
 
-__all__ = ["User", "Workspace", "WorkspaceMember", "Prompt", "PromptVersion", "AIModel", "Content", "ContentStatus"]
+__all__ = ["User", "Workspace", "WorkspaceMember", "Prompt", "PromptVersion", "AIModel", "Content", "ContentStatus", "AuditLog"]
