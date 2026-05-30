@@ -72,6 +72,11 @@ const routes = [
         component: () => import('@/views/contents/ContentDetail.vue'),
         meta: { title: '内容详情' },
       },
+      {
+        path: 'reviews',
+        component: () => import('@/views/reviews/ReviewCenter.vue'),
+        meta: { title: '审核中心' },
+      },
     ],
   },
 ]

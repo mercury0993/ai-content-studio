@@ -45,6 +45,10 @@ function handleLogout() {
           <el-icon><EditPen /></el-icon>
           <template #title>内容管理</template>
         </el-menu-item>
+        <el-menu-item index="/reviews">
+          <el-icon><Checked /></el-icon>
+          <template #title>审核中心</template>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
