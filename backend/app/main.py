@@ -17,7 +17,12 @@ from app.api.v1.models import router as models_router
 from app.api.v1.contents import router as contents_router
 from app.api.v1.reviews import router as reviews_router
 from app.api.v1.dashboard import router as dashboard_router
+import os
+
 from app.api.v1.export import router as export_router
+
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "REDACTED_PASSWORD")
 
 
 @asynccontextmanager
@@ -28,12 +33,12 @@ async def lifespan(app: FastAPI):
 
     # Seed default admin
     async with async_session() as db:
-        result = await db.execute(select(User).where(User.email == "admin@example.com"))
+        result = await db.execute(select(User).where(User.email == ADMIN_EMAIL))
         if not result.scalar_one_or_none():
             admin = User(
                 username="admin",
-                email="admin@example.com",
-                hashed_password=hash_password("REDACTED_PASSWORD"),
+                email=ADMIN_EMAIL,
+                hashed_password=hash_password(ADMIN_PASSWORD),
                 role=UserRole.ADMIN,
             )
             db.add(admin)

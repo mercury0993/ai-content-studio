@@ -27,15 +27,16 @@ AI 内容工坊后台管理系统 — 基于 Prompt 模板的 AI 内容生成、
 git clone <repo-url>
 cd ai-content-studio
 
-# 2. 配置环境变量
+# 2. 配置环境变量（必须修改 SECRET_KEY 和 POSTGRES_PASSWORD）
 cp backend/.env.example backend/.env
+# 编辑 .env，设置你自己的 SECRET_KEY 和密码
 
 # 3. 启动服务
 docker compose up -d
 
 # 4. 访问
 # 浏览器打开 http://localhost
-# 默认管理员: admin@example.com / REDACTED_PASSWORD
+# 管理员账号见 .env 中的 ADMIN_EMAIL / ADMIN_PASSWORD
 ```
 
 ## 项目结构
@@ -78,6 +79,6 @@ ai-content-studio/
 
 ## 默认账号
 
-| 角色 | 邮箱 | 密码 |
-|------|------|------|
-| 管理员 | admin@example.com | REDACTED_PASSWORD |
+管理员账号由 `.env` 中的 `ADMIN_EMAIL` / `ADMIN_PASSWORD` 配置，首次启动时自动创建。
+
+> **安全提示：** 部署到公网前，请务必修改 `.env` 中的所有默认密码和 `SECRET_KEY`。
