@@ -22,7 +22,7 @@ import os
 from app.api.v1.export import router as export_router
 
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "REDACTED_PASSWORD")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-this-password")
 
 
 @asynccontextmanager
