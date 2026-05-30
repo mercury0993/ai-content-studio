@@ -41,6 +41,10 @@ function handleLogout() {
           <el-icon><Cpu /></el-icon>
           <template #title>AI 模型</template>
         </el-menu-item>
+        <el-menu-item index="/contents">
+          <el-icon><EditPen /></el-icon>
+          <template #title>内容管理</template>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 

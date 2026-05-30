@@ -57,6 +57,21 @@ const routes = [
         component: () => import('@/views/models/ModelList.vue'),
         meta: { title: 'AI 模型' },
       },
+      {
+        path: 'contents',
+        component: () => import('@/views/contents/ContentList.vue'),
+        meta: { title: '内容管理' },
+      },
+      {
+        path: 'contents/create',
+        component: () => import('@/views/contents/ContentCreate.vue'),
+        meta: { title: '生成内容' },
+      },
+      {
+        path: 'contents/:id',
+        component: () => import('@/views/contents/ContentDetail.vue'),
+        meta: { title: '内容详情' },
+      },
     ],
   },
 ]
