@@ -13,6 +13,7 @@ from app.api.v1.prompts import router as prompts_router
 from app.api.v1.models import router as models_router
 from app.api.v1.contents import router as contents_router
 from app.api.v1.reviews import router as reviews_router
+from app.api.v1.dashboard import router as dashboard_router
 
 
 @asynccontextmanager
@@ -53,6 +54,7 @@ app.include_router(prompts_router, prefix="/api/v1")
 app.include_router(models_router, prefix="/api/v1")
 app.include_router(contents_router, prefix="/api/v1")
 app.include_router(reviews_router, prefix="/api/v1")
+app.include_router(dashboard_router, prefix="/api/v1")
 
 
 @app.get("/api/health")
