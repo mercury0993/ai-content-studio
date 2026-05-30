@@ -52,6 +52,11 @@ const routes = [
         component: () => import('@/views/prompts/PromptVersions.vue'),
         meta: { title: '版本历史' },
       },
+      {
+        path: 'models',
+        component: () => import('@/views/models/ModelList.vue'),
+        meta: { title: 'AI 模型' },
+      },
     ],
   },
 ]

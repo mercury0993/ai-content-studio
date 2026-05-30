@@ -37,6 +37,10 @@ function handleLogout() {
           <el-icon><Document /></el-icon>
           <template #title>Prompt 管理</template>
         </el-menu-item>
+        <el-menu-item index="/models">
+          <el-icon><Cpu /></el-icon>
+          <template #title>AI 模型</template>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
