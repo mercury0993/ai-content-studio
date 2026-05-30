@@ -22,6 +22,16 @@ const routes = [
         component: () => import('@/views/Dashboard.vue'),
         meta: { title: '数据看板' },
       },
+      {
+        path: 'workspaces',
+        component: () => import('@/views/workspaces/WorkspaceList.vue'),
+        meta: { title: '工作空间' },
+      },
+      {
+        path: 'workspaces/:id',
+        component: () => import('@/views/workspaces/WorkspaceDetail.vue'),
+        meta: { title: '空间详情' },
+      },
     ],
   },
 ]

@@ -25,6 +25,10 @@ function handleLogout() {
         active-text-color="#409EFF"
         router
       >
+        <el-menu-item index="/workspaces">
+          <el-icon><Folder /></el-icon>
+          <template #title>工作空间</template>
+        </el-menu-item>
         <el-menu-item index="/dashboard">
           <el-icon><DataBoard /></el-icon>
           <template #title>数据看板</template>
