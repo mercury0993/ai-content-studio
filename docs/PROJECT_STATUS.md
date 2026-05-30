@@ -80,12 +80,25 @@ ai-content-studio/
 | Export | 2 | markdown, zip |
 | **合计** | **41** | |
 
-## 已知问题
+## 已知问题与待改进
 
-1. **前端类型检查跳过** — 构建时用 `npx vite build` 而非 `vue-tsc && vite build`，部分 TS 类型错误未修复（不影响运行）
-2. **Mock AI 模式** — 内容生成返回预设模板，不调用真实 AI API
-3. **单元测试不完整** — 仅 auth 模块有测试框架，其他模块未写测试
-4. **无 HTTPS** — 本地演示用 HTTP，生产环境需配置 SSL
+### 功能层面
+1. **系统设置页** — 路由已定义但页面未实现（个人资料、密码修改）
+2. **Mock AI 模式** — 内容生成返回预设模板，不调用真实 AI API（设计如此）
+3. **按钮级权限** — `permission.ts` 提供了 `canEdit()` 工具函数，但未在所有按钮上应用
+
+### 质量层面
+4. **前端类型检查跳过** — 构建时用 `npx vite build` 跳过 `vue-tsc`，部分 TS 类型错误未修复
+5. **单元测试不完整** — 仅 auth 模块有测试框架，其他 7 个模块无测试
+6. **Alembic 迁移不完整** — 只有 users 表的初始迁移，后续表未生成迁移文件
+7. **无 CI/CD** — 无 GitHub Actions 自动测试/构建
+
+### 生产就绪层面
+8. **CORS 全开** — `allow_origins=["*"]`，生产环境需限制
+9. **无 HTTPS** — 本地演示用 HTTP，生产环境需配置 SSL
+10. **无速率限制** — API 无防刷保护
+11. **无日志/监控** — 无结构化日志、无错误上报
+12. **后端 Docker 健康检查缺失** — 前端和数据库有，后端没有
 
 ## 安全措施
 
@@ -96,5 +109,7 @@ ai-content-studio/
 
 ## Git 记录
 
+- 仓库：https://github.com/mercury0993/ai-content-studio
 - 分支：`feature/ai-content-studio`
 - 所有代码已提交，敏感信息已排除且历史已清理
+- 版本：v1.0.0（首个正式版本）
