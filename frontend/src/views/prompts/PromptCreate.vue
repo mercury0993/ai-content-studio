@@ -83,7 +83,7 @@ async function handleSubmit() {
         <el-input v-model="form.content" type="textarea" :rows="10" placeholder="Prompt 内容，使用 {{变量名}} 定义变量" />
       </el-form-item>
       <el-form-item>
-        <p style="color: #999; font-size: 12px;">提示：在内容中使用 {{变量名}} 来定义变量，例如 {{product_name}}、{{target_audience}}</p>
+        <p style="color: #999; font-size: 12px;">提示：在内容中使用 {`{变量名}`} 来定义变量，例如 {`{product_name}`}、{`{target_audience}`}</p>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :loading="loading" @click="handleSubmit">创建</el-button>
