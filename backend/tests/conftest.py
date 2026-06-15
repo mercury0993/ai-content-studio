@@ -38,8 +38,9 @@ async def db():
     """Provide a session that rolls back after each test for isolation."""
     async with engine.connect() as conn:
         trans = await conn.begin()
-        session = async_sessionmaker(conn, class_=AsyncSession, expire_on_commit=False)()
+        session = AsyncSession(conn, expire_on_commit=False)
         yield session
+        await session.close()
         await trans.rollback()
 
 
