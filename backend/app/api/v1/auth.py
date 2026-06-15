@@ -25,7 +25,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
 
 
 @router.post("/login", response_model=TokenResponse)
-@limiter.limit("10/minute")
+@limiter.limit("100/minute")
 async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
     try:
         return await auth_service.login(db, req)

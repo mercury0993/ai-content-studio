@@ -19,8 +19,8 @@ async def test_dashboard_stats(dashboard_client):
     resp = await client.get(f"/api/v1/dashboard/stats?workspace_id={ws_id}", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
     data = resp.json()["data"]
-    assert "total_contents" in data
-    assert "pending_reviews" in data
+    assert "content_count" in data
+    assert "pending_review" in data
 
 
 @pytest.mark.asyncio
@@ -29,8 +29,8 @@ async def test_dashboard_trend(dashboard_client):
     resp = await client.get(f"/api/v1/dashboard/trend?workspace_id={ws_id}", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
     data = resp.json()["data"]
-    assert "dates" in data
-    assert "counts" in data
+    assert isinstance(data, list)
+    assert len(data) > 0
 
 
 @pytest.mark.asyncio

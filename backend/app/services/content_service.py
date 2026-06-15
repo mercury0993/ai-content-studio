@@ -65,6 +65,7 @@ async def update_content(db: AsyncSession, content_id: uuid.UUID, req: ContentUp
     if req.edited_text is not None:
         content.edited_text = req.edited_text
     await db.flush()
+    await db.refresh(content)
     return content
 
 
