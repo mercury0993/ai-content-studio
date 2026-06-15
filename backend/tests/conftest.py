@@ -24,15 +24,14 @@ def event_loop():
     loop.close()
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(autouse=True)
 async def setup_db():
-    """Create tables once per test session. Disable rate limiter for tests."""
+    # Disable rate limiter in tests
     app.state.limiter._default_limits = ["10000/minute"]
     async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     yield
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
 
 
 @pytest_asyncio.fixture
