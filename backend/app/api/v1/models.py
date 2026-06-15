@@ -41,6 +41,9 @@ async def get_model(model_id: uuid.UUID, current_user: User = Depends(get_curren
     model = await ai_model_service.get_model(db, model_id)
     if not model:
         raise HTTPException(status_code=404, detail="Model not found")
+    member = await workspace_service.check_workspace_access(db, model.workspace_id, current_user.id)
+    if not member:
+        raise HTTPException(status_code=403, detail="Not a member of this workspace")
     return model
 
 
@@ -51,6 +54,12 @@ async def update_model(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    model = await ai_model_service.get_model(db, model_id)
+    if not model:
+        raise HTTPException(status_code=404, detail="Model not found")
+    member = await workspace_service.check_workspace_access(db, model.workspace_id, current_user.id)
+    if not member or member.role.value == "viewer":
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
     try:
         return await ai_model_service.update_model(db, model_id, req)
     except ValueError as e:
@@ -59,6 +68,12 @@ async def update_model(
 
 @router.delete("/{model_id}")
 async def delete_model(model_id: uuid.UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    model = await ai_model_service.get_model(db, model_id)
+    if not model:
+        raise HTTPException(status_code=404, detail="Model not found")
+    member = await workspace_service.check_workspace_access(db, model.workspace_id, current_user.id)
+    if not member or member.role.value == "viewer":
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
     try:
         await ai_model_service.delete_model(db, model_id)
         return {"message": "Deleted"}
@@ -68,6 +83,12 @@ async def delete_model(model_id: uuid.UUID, current_user: User = Depends(get_cur
 
 @router.patch("/{model_id}/toggle", response_model=AIModelResponse)
 async def toggle_model(model_id: uuid.UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    model = await ai_model_service.get_model(db, model_id)
+    if not model:
+        raise HTTPException(status_code=404, detail="Model not found")
+    member = await workspace_service.check_workspace_access(db, model.workspace_id, current_user.id)
+    if not member or member.role.value == "viewer":
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
     try:
         return await ai_model_service.toggle_model(db, model_id)
     except ValueError as e:

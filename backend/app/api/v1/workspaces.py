@@ -91,19 +91,8 @@ async def add_member(
     if not member or member.role.value != "admin":
         raise HTTPException(status_code=403, detail="Only workspace admin can add members")
     try:
-        new_member = await workspace_service.add_member(db, workspace_id, req)
-        from sqlalchemy import select
-        from app.models.user import User as UserModel
-        user = await db.execute(select(UserModel).where(UserModel.id == new_member.user_id))
-        u = user.scalar_one()
-        return MemberResponse(
-            id=new_member.id,
-            user_id=u.id,
-            username=u.username,
-            email=u.email,
-            role=new_member.role.value,
-            joined_at=new_member.joined_at,
-        )
+        result = await workspace_service.add_member(db, workspace_id, req)
+        return MemberResponse(**result)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

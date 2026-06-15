@@ -100,6 +100,9 @@ async def list_versions(prompt_id: uuid.UUID, current_user: User = Depends(get_c
     prompt = await prompt_service.get_prompt(db, prompt_id)
     if not prompt:
         raise HTTPException(status_code=404, detail="Prompt not found")
+    member = await workspace_service.check_workspace_access(db, prompt.workspace_id, current_user.id)
+    if not member:
+        raise HTTPException(status_code=403, detail="Not a member of this workspace")
     return await prompt_service.list_versions(db, prompt_id)
 
 

@@ -61,7 +61,7 @@ async def delete_workspace(db: AsyncSession, workspace_id: uuid.UUID) -> None:
     await db.flush()
 
 
-async def add_member(db: AsyncSession, workspace_id: uuid.UUID, req: MemberAdd) -> WorkspaceMember:
+async def add_member(db: AsyncSession, workspace_id: uuid.UUID, req: MemberAdd) -> dict:
     existing = await db.execute(
         select(WorkspaceMember).where(
             WorkspaceMember.workspace_id == workspace_id,
@@ -71,8 +71,9 @@ async def add_member(db: AsyncSession, workspace_id: uuid.UUID, req: MemberAdd) 
     if existing.scalar_one_or_none():
         raise ValueError("User already a member")
 
-    user = await db.execute(select(User).where(User.id == req.user_id))
-    if not user.scalar_one_or_none():
+    user_result = await db.execute(select(User).where(User.id == req.user_id))
+    user = user_result.scalar_one_or_none()
+    if not user:
         raise ValueError("User not found")
 
     member = WorkspaceMember(
@@ -82,7 +83,15 @@ async def add_member(db: AsyncSession, workspace_id: uuid.UUID, req: MemberAdd) 
     )
     db.add(member)
     await db.flush()
-    return member
+
+    return {
+        "id": member.id,
+        "user_id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "role": member.role.value,
+        "joined_at": member.joined_at,
+    }
 
 
 async def remove_member(db: AsyncSession, workspace_id: uuid.UUID, user_id: uuid.UUID) -> None:

@@ -8,7 +8,7 @@ from app.core.database import get_db
 from app.models.user import User
 from app.schemas.content import ContentResponse
 from app.schemas.review import ReviewSubmit, ReviewAction, BatchReview
-from app.services import review_service, workspace_service
+from app.services import review_service, workspace_service, content_service
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
 
@@ -44,6 +44,12 @@ async def submit_for_review(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    content = await content_service.get_content(db, content_id)
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
+    member = await workspace_service.check_workspace_access(db, content.workspace_id, current_user.id)
+    if not member or member.role.value == "viewer":
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
     try:
         return await review_service.submit_for_review(db, content_id, req.reviewer_id, current_user.id)
     except ValueError as e:
@@ -59,6 +65,12 @@ async def approve(
 ):
     if current_user.role.value == "viewer":
         raise HTTPException(status_code=403, detail="Viewers cannot review")
+    content = await content_service.get_content(db, content_id)
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
+    member = await workspace_service.check_workspace_access(db, content.workspace_id, current_user.id)
+    if not member:
+        raise HTTPException(status_code=403, detail="Not a member of this workspace")
     try:
         return await review_service.approve_content(db, content_id, current_user.id, req.comment)
     except ValueError as e:
@@ -74,6 +86,12 @@ async def reject(
 ):
     if current_user.role.value == "viewer":
         raise HTTPException(status_code=403, detail="Viewers cannot review")
+    content = await content_service.get_content(db, content_id)
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
+    member = await workspace_service.check_workspace_access(db, content.workspace_id, current_user.id)
+    if not member:
+        raise HTTPException(status_code=403, detail="Not a member of this workspace")
     try:
         return await review_service.reject_content(db, content_id, current_user.id, req.comment)
     except ValueError as e:
@@ -88,5 +106,12 @@ async def batch_review(
 ):
     if current_user.role.value == "viewer":
         raise HTTPException(status_code=403, detail="Viewers cannot review")
+    for cid in req.content_ids:
+        content = await content_service.get_content(db, cid)
+        if not content:
+            raise HTTPException(status_code=404, detail=f"Content {cid} not found")
+        member = await workspace_service.check_workspace_access(db, content.workspace_id, current_user.id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Not a member of one or more workspaces")
     count = await review_service.batch_review(db, req.content_ids, req.action, current_user.id, req.comment)
     return {"code": 0, "message": f"Reviewed {count} items", "data": {"count": count}}
