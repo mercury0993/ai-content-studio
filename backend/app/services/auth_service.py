@@ -61,3 +61,37 @@ async def get_me(db: AsyncSession, user_id: uuid.UUID) -> User:
     if not user:
         raise ValueError("User not found")
     return user
+
+
+async def update_profile(db: AsyncSession, user_id: uuid.UUID, username: str | None, email: str | None) -> User:
+    user = await db.get(User, user_id)
+    if not user:
+        raise ValueError("User not found")
+
+    if email and email != user.email:
+        existing = await db.execute(select(User).where(User.email == email))
+        if existing.scalar_one_or_none():
+            raise ValueError("Email already in use")
+
+    if username and username != user.username:
+        existing = await db.execute(select(User).where(User.username == username))
+        if existing.scalar_one_or_none():
+            raise ValueError("Username already in use")
+
+    if username:
+        user.username = username
+    if email:
+        user.email = email
+
+    await db.flush()
+    return user
+
+
+async def change_password(db: AsyncSession, user_id: uuid.UUID, current_password: str, new_password: str) -> None:
+    user = await db.get(User, user_id)
+    if not user:
+        raise ValueError("User not found")
+    if not verify_password(current_password, user.hashed_password):
+        raise ValueError("Current password is incorrect")
+    user.hashed_password = hash_password(new_password)
+    await db.flush()

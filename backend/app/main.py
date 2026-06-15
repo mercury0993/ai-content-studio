@@ -1,9 +1,14 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.core.database import async_session, engine, Base
 from app.core.security import hash_password
 from app.models.user import User, UserRole
@@ -17,9 +22,12 @@ from app.api.v1.models import router as models_router
 from app.api.v1.contents import router as contents_router
 from app.api.v1.reviews import router as reviews_router
 from app.api.v1.dashboard import router as dashboard_router
+import logging
 import os
+import time
 
 from app.api.v1.export import router as export_router
+from app.core.logging import setup_logging
 
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-this-password")
@@ -48,12 +56,12 @@ async def lifespan(app: FastAPI):
     async with async_session() as db:
         result = await db.execute(select(Workspace).where(Workspace.name == "Default Workspace"))
         if not result.scalar_one_or_none():
-            admin = (await db.execute(select(User).where(User.email == "admin@example.com"))).scalar_one()
-            ws = Workspace(name="Default Workspace", description="默认工作空间", owner_id=admin.id)
+            admin_user_seed = (await db.execute(select(User).where(User.email == "admin@example.com"))).scalar_one()
+            ws = Workspace(name="Default Workspace", description="默认工作空间", owner_id=admin_user_seed.id)
             db.add(ws)
             await db.flush()
 
-            member = WorkspaceMember(workspace_id=ws.id, user_id=admin.id, role=WorkspaceMemberRole.ADMIN)
+            member = WorkspaceMember(workspace_id=ws.id, user_id=admin_user_seed.id, role=WorkspaceMemberRole.ADMIN)
             db.add(member)
 
             model = AIModel(
@@ -91,7 +99,7 @@ async def lifespan(app: FastAPI):
                 p = Prompt(
                     workspace_id=ws.id, title=pd["title"], content=pd["content"],
                     category=pd["category"], tags=pd["tags"], variables=pd["variables"],
-                    version=1, created_by=admin.id,
+                    version=1, created_by=admin_user_seed.id,
                 )
                 db.add(p)
                 await db.flush()
@@ -102,11 +110,38 @@ async def lifespan(app: FastAPI):
     yield
 
 
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
+
+setup_logging()
+logger = logging.getLogger("ai-content-studio")
+
 app = FastAPI(title="AI Content Studio", version="0.1.0", lifespan=lifespan)
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    duration_ms = (time.time() - start) * 1000
+    logger.info(
+        f"{request.method} {request.url.path} {response.status_code}",
+        extra={
+            "extra": {
+                "method": request.method,
+                "path": request.url.path,
+                "status": response.status_code,
+                "duration_ms": round(duration_ms, 2),
+            }
+        },
+    )
+    return response
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[origin.strip() for origin in settings.CORS_ORIGINS.split(",")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

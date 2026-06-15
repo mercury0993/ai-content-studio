@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { listReviews, approveContent, rejectContent, batchReview, submitForReview } from '@/api/reviews'
 import { listMembers } from '@/api/workspaces'
+import { canEdit } from '@/utils/permission'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const workspaceStore = useWorkspaceStore()
@@ -119,7 +120,7 @@ function truncate(text: string, len: number) {
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <h3>审核中心</h3>
-      <div>
+      <div v-if="canEdit()">
         <el-button @click="handleBatch('approve')" :disabled="selectedIds.length === 0">批量通过</el-button>
         <el-button type="danger" @click="handleBatch('reject')" :disabled="selectedIds.length === 0">批量驳回</el-button>
       </div>
@@ -157,10 +158,10 @@ function truncate(text: string, len: number) {
       </el-table-column>
       <el-table-column label="操作" width="240">
         <template #default="{ row }">
-          <template v-if="row.status === 'draft'">
+          <template v-if="row.status === 'draft' && canEdit()">
             <el-button size="small" type="primary" @click="openSubmit(row.id)">提交审核</el-button>
           </template>
-          <template v-if="row.status === 'pending_review'">
+          <template v-if="row.status === 'pending_review' && canEdit()">
             <el-button size="small" type="success" @click="handleApprove(row.id)">通过</el-button>
             <el-button size="small" type="danger" @click="openReject(row.id)">驳回</el-button>
           </template>

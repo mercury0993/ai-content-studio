@@ -5,8 +5,16 @@ import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
 const isCollapse = ref(false)
 
-function handleLogout() {
-  userStore.logout()
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+function handleCommand(command: string) {
+  if (command === 'logout') {
+    userStore.logout()
+  } else if (command === 'settings') {
+    router.push('/settings')
+  }
 }
 </script>
 
@@ -49,6 +57,10 @@ function handleLogout() {
           <el-icon><Checked /></el-icon>
           <template #title>审核中心</template>
         </el-menu-item>
+        <el-menu-item index="/settings">
+          <el-icon><Setting /></el-icon>
+          <template #title>个人设置</template>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
@@ -58,13 +70,14 @@ function handleLogout() {
           <Fold v-if="!isCollapse" />
           <Expand v-else />
         </el-icon>
-        <el-dropdown @command="handleLogout">
+        <el-dropdown @command="handleCommand">
           <span style="cursor: pointer">
             {{ userStore.userInfo?.username }}
             <el-icon><ArrowDown /></el-icon>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
+              <el-dropdown-item command="settings">个人设置</el-dropdown-item>
               <el-dropdown-item command="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>

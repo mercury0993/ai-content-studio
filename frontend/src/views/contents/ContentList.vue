@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { listContents, deleteContent } from '@/api/contents'
+import { canEdit } from '@/utils/permission'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const workspaceStore = useWorkspaceStore()
@@ -55,7 +56,7 @@ function truncate(text: string, len: number) {
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <h3>内容管理</h3>
-      <el-button type="primary" @click="router.push('/contents/create')">生成内容</el-button>
+      <el-button v-if="canEdit()" type="primary" @click="router.push('/contents/create')">生成内容</el-button>
     </div>
 
     <div style="display: flex; gap: 12px; margin-bottom: 16px;">
@@ -92,7 +93,7 @@ function truncate(text: string, len: number) {
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
           <el-button size="small" @click="router.push(`/contents/${row.id}`)">查看</el-button>
-          <el-button size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
+          <el-button v-if="canEdit()" size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

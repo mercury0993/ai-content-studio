@@ -4,9 +4,9 @@
 
 AI 内容工坊后台管理系统，基于 Prompt 模板的 AI 内容生成、审核、管理平台。
 
-**当前状态：** 可运行，`docker compose up -d` 一键启动。
+**当前状态：** 可运行，`docker compose up -d` 一键启动。功能基本完整，仅剩 HTTPS 为生产就绪项。
 
-**安全状态：** Git 历史已清理，无硬编码密码/密钥。所有敏感配置通过 `.env` 环境变量管理。
+**安全状态：** Git 历史已清理，无硬编码密码/密钥。所有敏感配置通过 `.env` 环境变量管理。CORS 已限制，API 已加速率限制。
 
 ## 功能完成度
 
@@ -21,7 +21,16 @@ AI 内容工坊后台管理系统，基于 Prompt 模板的 AI 内容生成、�
 | 审核工作流 | 提交/通过/驳回/批量 + 审计日志 | 审核中心页 | ✅ 完成 |
 | 数据看板 | 统计/趋势/模型使用/排名 API | ECharts 4 种图表 | ✅ 完成 |
 | 内容导出 | Markdown + ZIP 下载 | 导出按钮 | ✅ 完成 |
+| 个人设置 | 个人资料修改 + 密码修改 | 设置页 | ✅ 完成 |
 | Seed 数据 | 默认工作空间 + 示例 Prompt + AI 模型 | — | ✅ 完成 |
+| 按钮级权限 | `canEdit()` 应用于所有操作按钮 | 5 个页面按钮控制 | ✅ 完成 |
+| 速率限制 | slowapi 全局限 60/min，auth 更严格 | — | ✅ 完成 |
+| CORS 限制 | 通过环境变量 `CORS_ORIGINS` 配置 | — | ✅ 完成 |
+| 结构化日志 | JSON 格式请求日志 | — | ✅ 完成 |
+| Docker 健康检查 | backend 容器健康检查 | — | ✅ 完成 |
+| CI/CD | GitHub Actions 自动测试/构建 | — | ✅ 完成 |
+| 单元测试 | 6 个测试文件覆盖全部 API 模块 | — | ✅ 完成 |
+| Alembic 迁移 | 全部 7 张表的完整迁移 | — | ✅ 完成 |
 
 ## 技术栈
 
@@ -70,7 +79,7 @@ ai-content-studio/
 
 | 模块 | 端点数 | 说明 |
 |------|--------|------|
-| Auth | 4 | register, login, refresh, me |
+| Auth | 6 | register, login, refresh, me, update profile, change password |
 | Workspaces | 7 | CRUD + members |
 | Prompts | 7 | CRUD + versions + rollback |
 | Models | 6 | CRUD + toggle |
@@ -78,27 +87,15 @@ ai-content-studio/
 | Reviews | 5 | list, submit, approve, reject, batch |
 | Dashboard | 5 | stats, trend, model-usage, user-ranking, recent |
 | Export | 2 | markdown, zip |
-| **合计** | **41** | |
+| **合计** | **43** | |
 
 ## 已知问题与待改进
 
 ### 功能层面
-1. **系统设置页** — 路由已定义但页面未实现（个人资料、密码修改）
-2. **Mock AI 模式** — 内容生成返回预设模板，不调用真实 AI API（设计如此）
-3. **按钮级权限** — `permission.ts` 提供了 `canEdit()` 工具函数，但未在所有按钮上应用
-
-### 质量层面
-4. **前端类型检查跳过** — 构建时用 `npx vite build` 跳过 `vue-tsc`，部分 TS 类型错误未修复
-5. **单元测试不完整** — 仅 auth 模块有测试框架，其他 7 个模块无测试
-6. **Alembic 迁移不完整** — 只有 users 表的初始迁移，后续表未生成迁移文件
-7. **无 CI/CD** — 无 GitHub Actions 自动测试/构建
+1. **Mock AI 模式** — 内容生成返回预设模板，不调用真实 AI API（设计如此，Mock 模式方便演示）
 
 ### 生产就绪层面
-8. **CORS 全开** — `allow_origins=["*"]`，生产环境需限制
-9. **无 HTTPS** — 本地演示用 HTTP，生产环境需配置 SSL
-10. **无速率限制** — API 无防刷保护
-11. **无日志/监控** — 无结构化日志、无错误上报
-12. **后端 Docker 健康检查缺失** — 前端和数据库有，后端没有
+2. **无 HTTPS** — 本地演示用 HTTP，生产环境需配置 SSL
 
 ## 安全措施
 
@@ -106,6 +103,9 @@ ai-content-studio/
 - Git 历史已清理，无硬编码密码/密钥残留
 - `SECRET_KEY`、`POSTGRES_PASSWORD`、`ADMIN_PASSWORD` 均通过环境变量配置
 - 数据库密码和管理员密码不在代码中硬编码
+- CORS 通过 `CORS_ORIGINS` 环境变量限制（默认仅 `http://localhost`）
+- API 速率限制：全局限 60 req/min，登录/注册更严格
+- 按钮级权限控制：viewer 角色看不到编辑/删除/审批按钮
 
 ## Git 记录
 

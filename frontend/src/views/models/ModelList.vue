@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { listModels, createModel, updateModel, deleteModel, toggleModel } from '@/api/aiModels'
+import { canEdit } from '@/utils/permission'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const workspaceStore = useWorkspaceStore()
@@ -112,7 +113,7 @@ async function handleDelete(id: string) {
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <h3>AI 模型配置</h3>
-      <el-button type="primary" @click="resetForm(); editingModel = null; showCreate = true">添加模型</el-button>
+      <el-button v-if="canEdit()" type="primary" @click="resetForm(); editingModel = null; showCreate = true">添加模型</el-button>
     </div>
 
     <el-table :data="models" v-loading="loading" style="width: 100%">
@@ -133,8 +134,8 @@ async function handleDelete(id: string) {
       </el-table-column>
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
-          <el-button size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
+          <el-button v-if="canEdit()" size="small" @click="openEdit(row)">编辑</el-button>
+          <el-button v-if="canEdit()" size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

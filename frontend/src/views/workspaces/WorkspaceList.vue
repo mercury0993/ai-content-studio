@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { createWorkspace, deleteWorkspace } from '@/api/workspaces'
+import { canEdit } from '@/utils/permission'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const workspaceStore = useWorkspaceStore()
@@ -48,7 +49,7 @@ function goDetail(id: string) {
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <h3>工作空间</h3>
-      <el-button type="primary" @click="showCreate = true">新建空间</el-button>
+      <el-button v-if="canEdit()" type="primary" @click="showCreate = true">新建空间</el-button>
     </div>
 
     <el-row :gutter="16">
@@ -57,7 +58,7 @@ function goDetail(id: string) {
           <template #header>
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-weight: bold;">{{ ws.name }}</span>
-              <el-button size="small" type="danger" @click.stop="handleDelete(ws.id, ws.name)">删除</el-button>
+              <el-button v-if="canEdit()" size="small" type="danger" @click.stop="handleDelete(ws.id, ws.name)">删除</el-button>
             </div>
           </template>
           <p>{{ ws.description || '暂无描述' }}</p>

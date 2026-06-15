@@ -15,3 +15,11 @@ export function refreshToken(refresh_token: string) {
 export function getMe() {
   return request.get('/auth/me')
 }
+
+export function updateProfile(data: { username?: string; email?: string }) {
+  return request.put('/auth/profile', data)
+}
+
+export function changePassword(data: { current_password: string; new_password: string }) {
+  return request.post('/auth/change-password', data)
+}

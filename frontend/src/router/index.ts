@@ -77,6 +77,11 @@ const routes = [
         component: () => import('@/views/reviews/ReviewCenter.vue'),
         meta: { title: '审核中心' },
       },
+      {
+        path: 'settings',
+        component: () => import('@/views/Settings.vue'),
+        meta: { title: '个人设置' },
+      },
     ],
   },
 ]

@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { listPrompts, deletePrompt, updatePrompt } from '@/api/prompts'
+import { canEdit } from '@/utils/permission'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const workspaceStore = useWorkspaceStore()
@@ -73,7 +74,7 @@ function goVersions(id: string) {
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <h3>Prompt 模板</h3>
-      <el-button type="primary" @click="router.push('/prompts/create')">新建 Prompt</el-button>
+      <el-button v-if="canEdit()" type="primary" @click="router.push('/prompts/create')">新建 Prompt</el-button>
     </div>
 
     <div style="display: flex; gap: 12px; margin-bottom: 16px;">
@@ -102,9 +103,9 @@ function goVersions(id: string) {
       </el-table-column>
       <el-table-column label="操作" width="240">
         <template #default="{ row }">
-          <el-button size="small" @click="goEdit(row.id)">编辑</el-button>
+          <el-button v-if="canEdit()" size="small" @click="goEdit(row.id)">编辑</el-button>
           <el-button size="small" @click="goVersions(row.id)">历史</el-button>
-          <el-button size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
+          <el-button v-if="canEdit()" size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
