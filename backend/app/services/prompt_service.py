@@ -90,6 +90,7 @@ async def update_prompt(db: AsyncSession, prompt_id: uuid.UUID, req: PromptUpdat
         db.add(version)
 
     await db.flush()
+    await db.refresh(prompt)
     return prompt
 
 

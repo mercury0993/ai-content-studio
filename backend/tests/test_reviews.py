@@ -29,33 +29,30 @@ async def review_setup(client, admin_user):
     }, headers={"Authorization": f"Bearer {token}"})
     content_id = content.json()["id"]
 
-    return {"token": token, "workspace_id": ws_id, "content_id": content_id}
+    admin_id = admin_user.id
+    return {"token": token, "workspace_id": ws_id, "content_id": content_id, "admin_id": str(admin_id)}
 
 
 @pytest.mark.asyncio
 async def test_submit_for_review(client, review_setup):
     s = review_setup
-    # Submit for review (reviewer = self)
     resp = await client.post(f"/api/v1/reviews/{s['content_id']}/submit", json={
-        "reviewer_id": "00000000-0000-0000-0000-000000000001",  # dummy, will fail but tests structure
+        "reviewer_id": s["admin_id"],
     }, headers={"Authorization": f"Bearer {s['token']}"})
-    # May fail due to invalid reviewer_id, but tests the endpoint
-    assert resp.status_code in (200, 400)
+    assert resp.status_code == 200
 
 
 @pytest.mark.asyncio
 async def test_approve_content(client, review_setup):
     s = review_setup
-    # First submit
     await client.post(f"/api/v1/reviews/{s['content_id']}/submit", json={
-        "reviewer_id": "00000000-0000-0000-0000-000000000001",
+        "reviewer_id": s["admin_id"],
     }, headers={"Authorization": f"Bearer {s['token']}"})
 
     resp = await client.post(f"/api/v1/reviews/{s['content_id']}/approve", json={
         "comment": "Looks good",
     }, headers={"Authorization": f"Bearer {s['token']}"})
-    # May fail due to invalid reviewer, but endpoint works
-    assert resp.status_code in (200, 400)
+    assert resp.status_code == 200
 
 
 @pytest.mark.asyncio
