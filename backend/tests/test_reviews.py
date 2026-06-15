@@ -1,7 +1,8 @@
 import pytest
+import pytest_asyncio
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def review_setup(client):
     resp = await client.post("/api/v1/auth/login", json={
         "email": "testadmin@example.com", "password": "password123",

@@ -1,7 +1,8 @@
 import pytest
+import pytest_asyncio
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def dashboard_client(client):
     resp = await client.post("/api/v1/auth/login", json={
         "email": "testadmin@example.com", "password": "password123",
