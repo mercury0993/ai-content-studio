@@ -73,9 +73,9 @@ async def test_update_prompt(client, workspace):
     }, headers={"Authorization": f"Bearer {token}"})
     p_id = p.json()["id"]
 
-    resp = await client.put(f"/api/v1/prompts/{p_id}", json={"title": "Updated"}, headers={"Authorization": f"Bearer {token}"})
+    resp = await client.put(f"/api/v1/prompts/{p_id}", json={"content": "new content"}, headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
-    assert resp.json()["title"] == "Updated"
+    assert resp.json()["content"] == "new content"
     assert resp.json()["version"] == 2
 
 

@@ -35,6 +35,7 @@ async def submit_for_review(db: AsyncSession, content_id: uuid.UUID, reviewer_id
 
     _log_audit(db, user_id, "content.submit", "content", content_id, {"from": old_status, "to": "pending_review"})
     await db.flush()
+    await db.refresh(content)
     return content
 
 
@@ -54,6 +55,7 @@ async def approve_content(db: AsyncSession, content_id: uuid.UUID, reviewer_id: 
 
     _log_audit(db, reviewer_id, "content.approve", "content", content_id, {"comment": comment})
     await db.flush()
+    await db.refresh(content)
     return content
 
 
