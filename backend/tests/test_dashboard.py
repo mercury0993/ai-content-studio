@@ -8,13 +8,15 @@ async def dashboard_client(client, admin_user):
         "email": "testadmin@example.com", "password": "password123",
     })
     token = resp.json()["access_token"]
-    return client, token
+    ws = await client.post("/api/v1/workspaces", json={"name": "Dashboard-WS"}, headers={"Authorization": f"Bearer {token}"})
+    ws_id = ws.json()["id"]
+    return client, token, ws_id
 
 
 @pytest.mark.asyncio
 async def test_dashboard_stats(dashboard_client):
-    client, token = dashboard_client
-    resp = await client.get("/api/v1/dashboard/stats", headers={"Authorization": f"Bearer {token}"})
+    client, token, ws_id = dashboard_client
+    resp = await client.get(f"/api/v1/dashboard/stats?workspace_id={ws_id}", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
     data = resp.json()["data"]
     assert "total_contents" in data
@@ -23,8 +25,8 @@ async def test_dashboard_stats(dashboard_client):
 
 @pytest.mark.asyncio
 async def test_dashboard_trend(dashboard_client):
-    client, token = dashboard_client
-    resp = await client.get("/api/v1/dashboard/trend", headers={"Authorization": f"Bearer {token}"})
+    client, token, ws_id = dashboard_client
+    resp = await client.get(f"/api/v1/dashboard/trend?workspace_id={ws_id}", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
     data = resp.json()["data"]
     assert "dates" in data
@@ -33,23 +35,23 @@ async def test_dashboard_trend(dashboard_client):
 
 @pytest.mark.asyncio
 async def test_dashboard_model_usage(dashboard_client):
-    client, token = dashboard_client
-    resp = await client.get("/api/v1/dashboard/model-usage", headers={"Authorization": f"Bearer {token}"})
+    client, token, ws_id = dashboard_client
+    resp = await client.get(f"/api/v1/dashboard/model-usage?workspace_id={ws_id}", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
     assert "data" in resp.json()
 
 
 @pytest.mark.asyncio
 async def test_dashboard_user_ranking(dashboard_client):
-    client, token = dashboard_client
-    resp = await client.get("/api/v1/dashboard/user-ranking", headers={"Authorization": f"Bearer {token}"})
+    client, token, ws_id = dashboard_client
+    resp = await client.get(f"/api/v1/dashboard/user-ranking?workspace_id={ws_id}", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
     assert "data" in resp.json()
 
 
 @pytest.mark.asyncio
 async def test_dashboard_recent(dashboard_client):
-    client, token = dashboard_client
-    resp = await client.get("/api/v1/dashboard/recent", headers={"Authorization": f"Bearer {token}"})
+    client, token, ws_id = dashboard_client
+    resp = await client.get(f"/api/v1/dashboard/recent?workspace_id={ws_id}", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
     assert "data" in resp.json()
