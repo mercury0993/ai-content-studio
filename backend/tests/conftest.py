@@ -1,10 +1,9 @@
 import asyncio
-import uuid
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine, AsyncConnection
 
 from app.core.database import Base, get_db
 from app.core.security import hash_password
@@ -14,7 +13,6 @@ from app.models.user import User, UserRole
 TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_content_studio_test"
 
 engine = create_async_engine(TEST_DATABASE_URL, echo=False)
-test_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 @pytest.fixture(scope="session")
@@ -25,7 +23,8 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
-async def setup_db():
+async def _create_tables():
+    """Create all tables once before all tests."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
@@ -35,8 +34,12 @@ async def setup_db():
 
 @pytest_asyncio.fixture
 async def db():
-    async with test_session() as session:
+    """Provide a session that rolls back after each test for isolation."""
+    async with engine.connect() as conn:
+        trans = await conn.begin()
+        session = async_sessionmaker(conn, class_=AsyncSession, expire_on_commit=False)()
         yield session
+        await trans.rollback()
 
 
 @pytest_asyncio.fixture
