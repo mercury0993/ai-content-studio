@@ -26,13 +26,6 @@ def event_loop():
 
 @pytest_asyncio.fixture(autouse=True)
 async def setup_db():
-    # Clear all slowapi limiter storage to prevent 429 in test suites
-    from app.main import limiter
-    limiter._storage.windows.clear()
-    limiter._storage.counts.clear()
-    from app.api.v1.auth import limiter as auth_limiter
-    auth_limiter._storage.windows.clear()
-    auth_limiter._storage.counts.clear()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
