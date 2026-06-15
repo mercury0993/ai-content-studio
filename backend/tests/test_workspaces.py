@@ -33,7 +33,7 @@ async def test_list_workspaces(client, admin_user):
 
 
 @pytest.mark.asyncio
-async def test_get_workspace(client):
+async def test_get_workspace(client, admin_user):
     resp = await client.post("/api/v1/auth/login", json={
         "email": "testadmin@example.com", "password": "password123",
     })
@@ -48,7 +48,7 @@ async def test_get_workspace(client):
 
 
 @pytest.mark.asyncio
-async def test_update_workspace(client):
+async def test_update_workspace(client, admin_user):
     resp = await client.post("/api/v1/auth/login", json={
         "email": "testadmin@example.com", "password": "password123",
     })
@@ -63,7 +63,7 @@ async def test_update_workspace(client):
 
 
 @pytest.mark.asyncio
-async def test_delete_workspace(client):
+async def test_delete_workspace(client, admin_user):
     resp = await client.post("/api/v1/auth/login", json={
         "email": "testadmin@example.com", "password": "password123",
     })

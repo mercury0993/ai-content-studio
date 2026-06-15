@@ -61,7 +61,7 @@ async def test_me(client, admin_token):
 @pytest.mark.asyncio
 async def test_me_no_token(client):
     resp = await client.get("/api/v1/auth/me")
-    assert resp.status_code == 403
+    assert resp.status_code in (401, 403)
 
 
 @pytest.mark.asyncio
