@@ -41,6 +41,7 @@ jobs:
         working-directory: backend
         env:
           SECRET_KEY: ci-test-secret-key
+          PYTEST_RUNNING: "1"
         run: |
           python -m pytest tests/ -v
 

@@ -110,6 +110,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
+is_test = os.getenv("PYTEST_RUNNING", "0") == "1"
 limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 
 setup_logging()
@@ -117,8 +118,9 @@ logger = logging.getLogger("ai-content-studio")
 
 app = FastAPI(title="AI Content Studio", version="0.1.0", lifespan=lifespan)
 
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+if not is_test:
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
 @app.middleware("http")
