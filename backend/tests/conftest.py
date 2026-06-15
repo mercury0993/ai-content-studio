@@ -14,6 +14,7 @@ from app.models.user import User, UserRole
 TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_content_studio_test"
 
 engine = create_async_engine(TEST_DATABASE_URL, echo=False, poolclass=NullPool)
+test_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 @pytest.fixture(scope="session")
@@ -23,25 +24,18 @@ def event_loop():
     loop.close()
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
-async def _create_tables():
-    """Create all tables once before all tests."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield
+@pytest_asyncio.fixture(autouse=True)
+async def setup_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    yield
 
 
 @pytest_asyncio.fixture
 async def db():
-    """Provide a session that rolls back after each test for isolation."""
-    async with engine.connect() as conn:
-        trans = await conn.begin()
-        session = AsyncSession(conn, expire_on_commit=False)
+    async with test_session() as session:
         yield session
-        await session.close()
-        await trans.rollback()
 
 
 @pytest_asyncio.fixture
@@ -65,7 +59,7 @@ async def admin_user(db):
         role=UserRole.ADMIN,
     )
     db.add(user)
-    await db.flush()
+    await db.commit()
     return user
 
 
