@@ -4,7 +4,7 @@
 
 AI 内容工坊后台管理系统，基于 Prompt 模板的 AI 内容生成、审核、管理平台。
 
-**当前状态：** 可运行，`docker compose up -d` 一键启动。功能基本完整，仅剩 HTTPS 为生产就绪项。
+**当前状态：** 可运行，`docker compose up -d` 一键启动。功能完整，Mock AI 和 HTTPS 为设计层面的保留项。
 
 **安全状态：** Git 历史已清理，无硬编码密码/密钥。所有敏感配置通过 `.env` 环境变量管理。CORS 已限制，API 已加速率限制。
 
@@ -20,7 +20,7 @@ AI 内容工坊后台管理系统，基于 Prompt 模板的 AI 内容生成、�
 | 内容生成 | Mock AI + 模拟指标 | 流式输出效果（前端模拟） | ✅ 完成 |
 | 审核工作流 | 提交/通过/驳回/批量 + 审计日志 | 审核中心页 | ✅ 完成 |
 | 数据看板 | 统计/趋势/模型使用/排名 API | ECharts 4 种图表 | ✅ 完成 |
-| 内容导出 | Markdown + ZIP 下载 | 导出按钮 | ✅ 完成 |
+| 内容导出 | Markdown 单篇 + ZIP 批量下载 | 单篇导出按钮 + 批量选择导出 | ✅ 完成 |
 | 个人设置 | 个人资料修改 + 密码修改 | 设置页 | ✅ 完成 |
 | Seed 数据 | 默认工作空间 + 示例 Prompt + AI 模型 | — | ✅ 完成 |
 | 按钮级权限 | `canEdit()` 应用于所有操作按钮 | 5 个页面按钮控制 | ✅ 完成 |
@@ -43,6 +43,7 @@ AI 内容工坊后台管理系统，基于 Prompt 模板的 AI 内容生成、�
 
 ```bash
 cd ai-content-studio
+cp .env.example .env
 cp backend/.env.example backend/.env
 docker compose up -d
 ```
@@ -65,13 +66,14 @@ ai-content-studio/
 │       └── main.py          # FastAPI 入口 + seed 数据
 ├── frontend/
 │   └── src/
-│       ├── api/             # 8 个 API 模块
+│       ├── api/             # 9 个 API 模块
 │       ├── views/           # 15 个页面组件
 │       ├── stores/          # 2 个 Pinia store
 │       ├── router/          # 路由 + 权限守卫
 │       ├── layouts/         # MainLayout 侧边栏布局
 │       └── utils/           # 权限工具
 ├── docker-compose.yml
+├── .env.example
 └── README.md
 ```
 
