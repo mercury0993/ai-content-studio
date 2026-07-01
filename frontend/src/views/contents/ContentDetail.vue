@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getContent, updateContent } from '@/api/contents'
+import { exportMarkdown } from '@/api/export'
 import { ElMessage } from 'element-plus'
 
 const route = useRoute()
@@ -27,22 +28,8 @@ function handleCopy() {
   ElMessage.success('已复制到剪贴板')
 }
 
-async function handleExportMarkdown() {
-  const token = localStorage.getItem('access_token')
-  const resp = await fetch(`/api/v1/export/markdown/${content.value.id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  if (!resp.ok) {
-    ElMessage.error('导出失败')
-    return
-  }
-  const blob = await resp.blob()
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `content_${content.value.id.slice(0, 8)}.md`
-  a.click()
-  URL.revokeObjectURL(url)
+function handleExportMarkdown() {
+  exportMarkdown(content.value.id)
 }
 </script>
 

@@ -13,5 +13,9 @@ frontend/dist/
 .vscode/
 .idea/
 
+# Auto-generated
+frontend/auto-imports.d.ts
+frontend/components.d.ts
+
 # Docker
 postgres_data/

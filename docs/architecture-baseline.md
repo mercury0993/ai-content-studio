@@ -225,3 +225,4 @@ curl http://localhost:8000/api/health
 | 2026-06-16 | v1 | 首次全量 | - | - | - | 基线建立 |
 | 2026-06-16 | v1 | 首次全量验收 | 2 | 2 | 2 | 有条件通过，export 模块无 service 层 + workspace 跨层 SQL |
 | 2026-06-16 | v1 | 阻塞项修复验证 | 4 | 2 | 0 | ✅ 全部通过，export 已有 service 层，workspace 跨层 SQL 已消除 |
+| 2026-06-16 | v1 | 增量验收（CI修复后） | 6 | 0 | 0 | ✅ 全部通过，17 commits 均为测试/配置/修复，架构未变 |

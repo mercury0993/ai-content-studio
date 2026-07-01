@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { listContents, deleteContent } from '@/api/contents'
+import { exportZip } from '@/api/export'
 import { canEdit } from '@/utils/permission'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -13,6 +14,7 @@ const total = ref(0)
 const page = ref(1)
 const status = ref('')
 const loading = ref(false)
+const selectedIds = ref<string[]>([])
 
 const statusMap: Record<string, { label: string; type: string }> = {
   draft: { label: '草稿', type: 'info' },
@@ -47,6 +49,18 @@ async function handleDelete(id: string) {
   await fetchContents()
 }
 
+function handleSelectionChange(selection: any[]) {
+  selectedIds.value = selection.map((item: any) => item.id)
+}
+
+function handleBatchExport() {
+  if (selectedIds.value.length === 0) {
+    ElMessage.warning('请先选择要导出的内容')
+    return
+  }
+  exportZip(selectedIds.value)
+}
+
 function truncate(text: string, len: number) {
   return text?.length > len ? text.slice(0, len) + '...' : text
 }
@@ -56,7 +70,12 @@ function truncate(text: string, len: number) {
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <h3>内容管理</h3>
-      <el-button v-if="canEdit()" type="primary" @click="router.push('/contents/create')">生成内容</el-button>
+      <div style="display: flex; gap: 8px;">
+        <el-button v-if="canEdit()" @click="handleBatchExport" :disabled="selectedIds.length === 0">
+          批量导出 ZIP ({{ selectedIds.length }})
+        </el-button>
+        <el-button v-if="canEdit()" type="primary" @click="router.push('/contents/create')">生成内容</el-button>
+      </div>
     </div>
 
     <div style="display: flex; gap: 12px; margin-bottom: 16px;">
@@ -68,7 +87,8 @@ function truncate(text: string, len: number) {
       </el-select>
     </div>
 
-    <el-table :data="contents" v-loading="loading" style="width: 100%">
+    <el-table :data="contents" v-loading="loading" style="width: 100%" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="50" />
       <el-table-column label="内容预览" min-width="300">
         <template #default="{ row }">
           <span>{{ truncate(row.edited_text || row.generated_text, 80) }}</span>
