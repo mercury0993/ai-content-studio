@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -47,6 +48,25 @@ async def generate_content(
         raise HTTPException(status_code=403, detail="Insufficient permissions")
     try:
         return await content_service.generate_content(db, current_user.id, req)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/generate-stream")
+async def generate_content_stream(
+    req: ContentGenerate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    member = await workspace_service.check_workspace_access(db, req.workspace_id, current_user.id)
+    if not member or member.role.value == "viewer":
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    try:
+        return StreamingResponse(
+            content_service.generate_content_stream(db, current_user.id, req),
+            media_type="text/plain",
+            headers={"X-Accel-Buffering": "no"},
+        )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
