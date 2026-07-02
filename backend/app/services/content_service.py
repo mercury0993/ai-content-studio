@@ -1,3 +1,4 @@
+import time
 import uuid
 
 from sqlalchemy import select, func
@@ -5,17 +6,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.content import Content, ContentStatus
 from app.models.prompt import Prompt
+from app.models.ai_model import AIModel
 from app.schemas.content import ContentGenerate, ContentUpdate
-from app.services.ai_service import mock_generate
+from app.services import ai_service
 
 
 async def generate_content(db: AsyncSession, user_id: uuid.UUID, req: ContentGenerate) -> Content:
-    result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id))
-    prompt = result.scalar_one_or_none()
+    prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id))
+    prompt = prompt_result.scalar_one_or_none()
     if not prompt:
         raise ValueError("Prompt not found")
 
-    ai_result = mock_generate(prompt.category, req.variables, prompt.title)
+    model_result = await db.execute(select(AIModel).where(AIModel.id == req.model_id))
+    model = model_result.scalar_one_or_none()
+    if not model:
+        raise ValueError("Model not found")
+
+    prompt_text = ai_service._build_prompt_text(prompt.content, req.variables)
+    ai_result = await ai_service.deepseek_generate(prompt_text, model)
 
     content = Content(
         workspace_id=req.workspace_id,
@@ -31,6 +39,43 @@ async def generate_content(db: AsyncSession, user_id: uuid.UUID, req: ContentGen
     db.add(content)
     await db.flush()
     return content
+
+
+async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: ContentGenerate):
+    prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id))
+    prompt = prompt_result.scalar_one_or_none()
+    if not prompt:
+        raise ValueError("Prompt not found")
+
+    model_result = await db.execute(select(AIModel).where(AIModel.id == req.model_id))
+    model = model_result.scalar_one_or_none()
+    if not model:
+        raise ValueError("Model not found")
+
+    prompt_text = ai_service._build_prompt_text(prompt.content, req.variables)
+
+    start_time = time.time()
+    full_text = ""
+
+    async for chunk in ai_service.deepseek_generate_stream(prompt_text, model):
+        full_text += chunk
+        yield chunk
+
+    # Save generated content to DB after stream completes
+    generation_time_ms = int((time.time() - start_time) * 1000)
+    content = Content(
+        workspace_id=req.workspace_id,
+        prompt_id=req.prompt_id,
+        model_id=req.model_id,
+        variables_used=req.variables or {},
+        generated_text=full_text,
+        status=ContentStatus.DRAFT,
+        token_usage=0,
+        generation_time_ms=generation_time_ms,
+        created_by=user_id,
+    )
+    db.add(content)
+    await db.flush()
 
 
 async def list_contents(
