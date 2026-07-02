@@ -1,5 +1,6 @@
 import time
 import uuid
+from typing import AsyncGenerator
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +23,7 @@ async def generate_content(db: AsyncSession, user_id: uuid.UUID, req: ContentGen
     if not model:
         raise ValueError("Model not found")
 
-    prompt_text = ai_service._build_prompt_text(prompt.content, req.variables)
+    prompt_text = ai_service.build_prompt_text(prompt.content, req.variables)
     ai_result = await ai_service.deepseek_generate(prompt_text, model)
 
     content = Content(
@@ -41,7 +42,7 @@ async def generate_content(db: AsyncSession, user_id: uuid.UUID, req: ContentGen
     return content
 
 
-async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: ContentGenerate):
+async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: ContentGenerate) -> AsyncGenerator[str, None]:
     prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id))
     prompt = prompt_result.scalar_one_or_none()
     if not prompt:
@@ -52,7 +53,7 @@ async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: Con
     if not model:
         raise ValueError("Model not found")
 
-    prompt_text = ai_service._build_prompt_text(prompt.content, req.variables)
+    prompt_text = ai_service.build_prompt_text(prompt.content, req.variables)
 
     start_time = time.time()
     full_text = ""

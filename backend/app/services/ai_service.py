@@ -5,7 +5,7 @@ from openai import AsyncOpenAI
 from app.core.config import settings
 
 
-def _build_prompt_text(prompt_content: str, variables: dict | None) -> str:
+def build_prompt_text(prompt_content: str, variables: dict | None) -> str:
     text = prompt_content
     for key, value in (variables or {}).items():
         text = text.replace(f"{{{key}}}", str(value))
