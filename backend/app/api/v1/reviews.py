@@ -40,7 +40,7 @@ async def list_reviews(
 @router.post("/{content_id}/submit", response_model=ContentResponse)
 async def submit_for_review(
     content_id: uuid.UUID,
-    req: ReviewSubmit,
+    req: ReviewSubmit | None = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -51,12 +51,14 @@ async def submit_for_review(
     if not member or member.role.value == "viewer":
         raise HTTPException(status_code=403, detail="Insufficient permissions")
 
-    reviewer_member = await workspace_service.check_workspace_access(db, content.workspace_id, req.reviewer_id)
-    if not reviewer_member or reviewer_member.role.value == "viewer":
-        raise HTTPException(status_code=400, detail="Reviewer must be a workspace member with editor or admin role")
+    reviewer_id = req.reviewer_id if req else None
+    if reviewer_id:
+        reviewer_member = await workspace_service.check_workspace_access(db, content.workspace_id, reviewer_id)
+        if not reviewer_member or reviewer_member.role.value == "viewer":
+            raise HTTPException(status_code=400, detail="Reviewer must be a workspace member with editor or admin role")
 
     try:
-        return await review_service.submit_for_review(db, content_id, req.reviewer_id, current_user.id)
+        return await review_service.submit_for_review(db, content_id, reviewer_id, current_user.id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

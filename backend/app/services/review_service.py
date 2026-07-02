@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.content import Content, ContentStatus
 from app.models.audit_log import AuditLog
+from app.models.workspace import WorkspaceMember, WorkspaceMemberRole
 
 
 def _log_audit(db: AsyncSession, user_id: uuid.UUID, action: str, resource_type: str, resource_id: uuid.UUID, details: dict | None = None):
@@ -19,7 +20,7 @@ def _log_audit(db: AsyncSession, user_id: uuid.UUID, action: str, resource_type:
     db.add(log)
 
 
-async def submit_for_review(db: AsyncSession, content_id: uuid.UUID, reviewer_id: uuid.UUID, user_id: uuid.UUID) -> Content:
+async def submit_for_review(db: AsyncSession, content_id: uuid.UUID, reviewer_id: uuid.UUID | None, user_id: uuid.UUID) -> Content:
     result = await db.execute(select(Content).where(Content.id == content_id))
     content = result.scalar_one_or_none()
     if not content:
@@ -27,9 +28,24 @@ async def submit_for_review(db: AsyncSession, content_id: uuid.UUID, reviewer_id
     if content.status not in (ContentStatus.DRAFT, ContentStatus.REJECTED):
         raise ValueError(f"Cannot submit content with status '{content.status}'")
 
+    # Auto-assign reviewer to first workspace admin if not specified
+    resolved_reviewer_id = reviewer_id
+    if not resolved_reviewer_id:
+        admin_result = await db.execute(
+            select(WorkspaceMember).where(
+                WorkspaceMember.workspace_id == content.workspace_id,
+                WorkspaceMember.role == WorkspaceMemberRole.ADMIN,
+            ).limit(1)
+        )
+        admin = admin_result.scalar_one_or_none()
+        if admin:
+            resolved_reviewer_id = admin.user_id
+        else:
+            resolved_reviewer_id = user_id  # fallback to the submitter
+
     old_status = content.status.value
     content.status = ContentStatus.PENDING_REVIEW
-    content.reviewed_by = reviewer_id
+    content.reviewed_by = resolved_reviewer_id
     content.review_comment = None
     await db.flush()
 

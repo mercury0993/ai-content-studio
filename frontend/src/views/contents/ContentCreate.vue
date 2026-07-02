@@ -5,6 +5,7 @@ import { useWorkspaceStore } from '@/stores/workspace'
 import { listPrompts } from '@/api/prompts'
 import { listModels } from '@/api/aiModels'
 import { generateContentStream } from '@/api/contents'
+import { submitForReview } from '@/api/reviews'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -18,6 +19,8 @@ const variables = ref<Record<string, string>>({})
 const generating = ref(false)
 const resultText = ref('')
 const showResult = ref(false)
+const generatedContentId = ref('')
+const submitting = ref(false)
 
 onMounted(async () => {
   if (!workspaceStore.currentWorkspace) return
@@ -54,6 +57,7 @@ async function handleGenerate() {
   generating.value = true
   showResult.value = true
   resultText.value = ''
+  generatedContentId.value = ''
 
   await generateContentStream(
     {
@@ -63,7 +67,14 @@ async function handleGenerate() {
       variables: variables.value,
     },
     (chunk: string) => {
-      resultText.value += chunk
+      const cidMarker = '__CID__:'
+      if (chunk.includes(cidMarker)) {
+        const [text, cid] = chunk.split(cidMarker)
+        resultText.value += text
+        generatedContentId.value = cid.replace(/\n/g, '').trim()
+      } else {
+        resultText.value += chunk
+      }
     },
     () => {
       generating.value = false
@@ -74,6 +85,20 @@ async function handleGenerate() {
       showResult.value = false
     },
   )
+}
+
+async function handleSubmitReview() {
+  if (!generatedContentId.value) return
+  submitting.value = true
+  try {
+    await submitForReview(generatedContentId.value)
+    ElMessage.success('已提交审核')
+    generatedContentId.value = ''
+  } catch {
+    // handled by interceptor
+  } finally {
+    submitting.value = false
+  }
 }
 
 function handleCopy() {
@@ -111,7 +136,10 @@ function handleCopy() {
     <div v-if="showResult" style="margin-top: 24px; max-width: 800px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <h4>生成结果</h4>
-        <el-button size="small" @click="handleCopy" :disabled="generating">复制</el-button>
+        <div style="display: flex; gap: 8px;">
+          <el-button size="small" type="success" @click="handleSubmitReview" :disabled="generating || !generatedContentId" :loading="submitting">提交审核</el-button>
+          <el-button size="small" @click="handleCopy" :disabled="generating">复制</el-button>
+        </div>
       </div>
       <el-input type="textarea" :model-value="resultText" :rows="15" readonly />
     </div>

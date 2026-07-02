@@ -9,8 +9,8 @@ export function listReviews(params: {
   return request.get('/reviews', { params })
 }
 
-export function submitForReview(contentId: string, reviewerId: string) {
-  return request.post(`/reviews/${contentId}/submit`, { reviewer_id: reviewerId })
+export function submitForReview(contentId: string, reviewerId?: string) {
+  return request.post(`/reviews/${contentId}/submit`, reviewerId ? { reviewer_id: reviewerId } : {})
 }
 
 export function approveContent(contentId: string, comment?: string) {

@@ -77,6 +77,7 @@ async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: Con
     )
     db.add(content)
     await db.flush()
+    yield f"\n__CID__:{content.id}\n"
 
 
 async def list_contents(

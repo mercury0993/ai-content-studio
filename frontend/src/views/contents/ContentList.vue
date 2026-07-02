@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { listContents, deleteContent } from '@/api/contents'
+import { submitForReview } from '@/api/reviews'
 import { exportZip } from '@/api/export'
 import { canEdit } from '@/utils/permission'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -47,6 +48,16 @@ async function handleDelete(id: string) {
   await deleteContent(id)
   ElMessage.success('已删除')
   await fetchContents()
+}
+
+async function handleSubmitReview(id: string) {
+  try {
+    await submitForReview(id)
+    ElMessage.success('已提交审核')
+    await fetchContents()
+  } catch {
+    // handled by interceptor
+  }
 }
 
 function handleSelectionChange(selection: any[]) {
@@ -114,9 +125,10 @@ function truncate(text: string, len: number) {
           {{ new Date(row.created_at).toLocaleString() }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="160">
+      <el-table-column label="操作" width="240">
         <template #default="{ row }">
           <el-button size="small" @click="router.push(`/contents/${row.id}`)">查看</el-button>
+          <el-button v-if="canEdit() && row.status === 'draft'" size="small" type="success" @click="handleSubmitReview(row.id)">提交审核</el-button>
           <el-button v-if="canEdit()" size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
         </template>
       </el-table-column>

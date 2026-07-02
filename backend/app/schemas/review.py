@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class ReviewSubmit(BaseModel):
-    reviewer_id: uuid.UUID
+    reviewer_id: uuid.UUID | None = None
 
 
 class ReviewAction(BaseModel):
