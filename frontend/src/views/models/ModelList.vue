@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { listModels, createModel, updateModel, deleteModel, toggleModel } from '@/api/aiModels'
 import { canEdit } from '@/utils/permission'
@@ -11,12 +11,19 @@ const showCreate = ref(false)
 const editingModel = ref<any>(null)
 const loading = ref(false)
 
+const providerDefaults: Record<string, { base_url: string; model_name: string }> = {
+  openai: { base_url: 'https://api.openai.com/v1', model_name: 'gpt-4o' },
+  deepseek: { base_url: 'https://api.deepseek.com', model_name: 'deepseek-chat' },
+  claude: { base_url: '', model_name: 'claude-3-opus-20240229' },
+  wenxin: { base_url: '', model_name: '' },
+}
+
 const form = ref({
   name: '',
-  provider: 'openai',
+  provider: 'deepseek',
   api_key: '',
-  base_url: '',
-  model_name: '',
+  base_url: 'https://api.deepseek.com',
+  model_name: 'deepseek-chat',
   temperature: 0.7,
   max_tokens: 2000,
 })
@@ -28,8 +35,19 @@ const providers = [
   { label: '文心一言', value: 'wenxin' },
 ]
 
+watch(() => form.value.provider, (newProvider) => {
+  const defaults = providerDefaults[newProvider]
+  if (defaults) {
+    form.value.base_url = defaults.base_url
+    form.value.model_name = defaults.model_name
+  }
+})
+
 async function fetchModels() {
-  if (!workspaceStore.currentWorkspace) return
+  if (!workspaceStore.currentWorkspace) {
+    ElMessage.warning('未加入任何工作空间，请先在"工作空间"页面加入或创建空间')
+    return
+  }
   loading.value = true
   try {
     models.value = await listModels(workspaceStore.currentWorkspace.id) as any
@@ -45,7 +63,10 @@ async function handleSubmit() {
     ElMessage.warning('请填写模型名称和模型标识')
     return
   }
-  if (!workspaceStore.currentWorkspace) return
+  if (!workspaceStore.currentWorkspace) {
+    ElMessage.warning('未加入任何工作空间，请先在"工作空间"页面加入或创建空间')
+    return
+  }
 
   try {
     if (editingModel.value) {
@@ -80,7 +101,7 @@ async function handleSubmit() {
 }
 
 function resetForm() {
-  form.value = { name: '', provider: 'openai', api_key: '', base_url: '', model_name: '', temperature: 0.7, max_tokens: 2000 }
+  form.value = { name: '', provider: 'deepseek', api_key: '', base_url: 'https://api.deepseek.com', model_name: 'deepseek-chat', temperature: 0.7, max_tokens: 2000 }
 }
 
 function openEdit(model: any) {
