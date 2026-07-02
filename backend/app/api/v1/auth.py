@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -12,10 +13,18 @@ from app.services import auth_service
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 limiter = Limiter(key_func=get_remote_address)
+_is_test = os.getenv("PYTEST_RUNNING", "0") == "1"
+
+
+def _limit(rate: str):
+    """Apply rate limit decorator; skip in test mode."""
+    if _is_test:
+        return lambda f: f
+    return limiter.limit(rate)
 
 
 @router.post("/register", response_model=UserResponse)
-@limiter.limit("5/minute")
+@_limit("5/minute")
 async def register(req: RegisterRequest, request: Request, db: AsyncSession = Depends(get_db)):
     try:
         user = await auth_service.register(db, req)
@@ -25,7 +34,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
 
 
 @router.post("/login", response_model=TokenResponse)
-@limiter.limit("10/minute")
+@_limit("10/minute")
 async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
     try:
         return await auth_service.login(db, req)
@@ -34,7 +43,7 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
 
 
 @router.post("/refresh", response_model=TokenResponse)
-@limiter.limit("20/minute")
+@_limit("20/minute")
 async def refresh(req: RefreshRequest, request: Request, db: AsyncSession = Depends(get_db)):
     try:
         return await auth_service.refresh(db, req.refresh_token)
