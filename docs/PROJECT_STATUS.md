@@ -4,7 +4,7 @@
 
 AI 内容工坊后台管理系统，基于 Prompt 模板的 AI 内容生成、审核、管理平台。
 
-**当前状态：** 可运行，`docker compose up -d` 一键启动。功能完整，Mock AI 和 HTTPS 为设计层面的保留项。
+**当前状态：** v1.3.0，`docker compose up -d` 一键启动。已接入 DeepSeek API，支持真实 AI 生成 + SSE 流式输出。
 
 **安全状态：** Git 历史已清理，无硬编码密码/密钥。所有敏感配置通过 `.env` 环境变量管理。CORS 已限制，API 已加速率限制。
 
@@ -17,7 +17,7 @@ AI 内容工坊后台管理系统，基于 Prompt 模板的 AI 内容生成、�
 | 工作空间 | CRUD + 成员管理 | 列表/详情页 | ✅ 完成 |
 | Prompt 管理 | CRUD + 变量提取 + 版本历史 | 列表/创建/编辑/版本页 | ✅ 完成 |
 | AI 模型 | CRUD + 启用/禁用 | 配置页 | ✅ 完成 |
-| 内容生成 | Mock AI + 模拟指标 | 流式输出效果（前端模拟） | ✅ 完成 |
+| 内容生成 | DeepSeek API + SSE 真流式 | 流式输出 + 提交审核 | ✅ 完成 |
 | 审核工作流 | 提交/通过/驳回/批量 + 审计日志 | 审核中心页 | ✅ 完成 |
 | 数据看板 | 统计/趋势/模型使用/排名 API | ECharts 4 种图表 | ✅ 完成 |
 | 内容导出 | Markdown 单篇 + ZIP 批量下载 | 单篇导出按钮 + 批量选择导出 | ✅ 完成 |
@@ -52,6 +52,13 @@ docker compose up -d
 - 后端 API 文档：http://localhost:8000/docs
 - 管理员账号：由 `.env` 中的 `ADMIN_EMAIL` / `ADMIN_PASSWORD` 配置
 
+## DeepSeek API 配置
+
+1. 在 `backend/.env` 中设置 `DEEPSEEK_API_KEY=你的key`
+2. 重建容器：`docker compose build backend && docker compose up -d`
+3. 在系统内创建 AI 模型：提供商选 DeepSeek，模型标识 `deepseek-chat`，Base URL 自动填充
+4. 新功能：SSE 真流式输出、一键提交审核、注册自动加入工作空间、导出不再限制审核状态
+
 ## 文件结构
 
 ```
@@ -85,16 +92,16 @@ ai-content-studio/
 | Workspaces | 7 | CRUD + members |
 | Prompts | 7 | CRUD + versions + rollback |
 | Models | 6 | CRUD + toggle |
-| Contents | 5 | CRUD + generate |
+| Contents | 6 | CRUD + generate + generate-stream (SSE) |
 | Reviews | 5 | list, submit, approve, reject, batch |
 | Dashboard | 5 | stats, trend, model-usage, user-ranking, recent |
 | Export | 2 | markdown, zip |
-| **合计** | **43** | |
+| **合计** | **44** | |
 
 ## 已知问题与待改进
 
 ### 功能层面
-1. **Mock AI 模式** — 内容生成返回预设模板，不调用真实 AI API（设计如此，Mock 模式方便演示）
+1. **流式生成 Token 统计** — 流式模式下 token 消耗暂无法获取，显示"暂不支持"；非流式模式正常统计
 
 ### 生产就绪层面
 2. **无 HTTPS** — 本地演示用 HTTP，生产环境需配置 SSL
@@ -114,5 +121,5 @@ ai-content-studio/
 - 仓库：https://github.com/mercury0993/ai-content-studio
 - 分支：`feature/ai-content-studio`
 - 所有代码已提交，敏感信息已排除且历史已清理
-- 最新版本：v1.2.0（企业级 UI + 安全加固）
+- 最新版本：v1.3.0（DeepSeek API 接入 + SSE 真流式 + 审核优化 + Bug 修复）
 - [GitHub Releases](https://github.com/mercury0993/ai-content-studio/releases)
