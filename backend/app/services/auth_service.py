@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 from app.models.user import User, UserRole
+from app.models.workspace import Workspace, WorkspaceMember, WorkspaceMemberRole
 from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse
 
 
@@ -24,6 +25,18 @@ async def register(db: AsyncSession, req: RegisterRequest) -> User:
     )
     db.add(user)
     await db.flush()
+
+    # Auto-join Default Workspace as VIEWER
+    ws_result = await db.execute(select(Workspace).where(Workspace.name == "Default Workspace"))
+    default_ws = ws_result.scalar_one_or_none()
+    if default_ws:
+        member = WorkspaceMember(
+            workspace_id=default_ws.id,
+            user_id=user.id,
+            role=WorkspaceMemberRole.VIEWER,
+        )
+        db.add(member)
+
     return user
 
 
