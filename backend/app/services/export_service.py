@@ -5,15 +5,15 @@ import zipfile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.content import Content, ContentStatus
+from app.models.content import Content
 from app.models.prompt import Prompt
 
 
 async def get_content_for_export(db: AsyncSession, content_id: uuid.UUID) -> tuple[Content | None, str | None]:
     result = await db.execute(select(Content).where(Content.id == content_id))
     content = result.scalar_one_or_none()
-    if not content or content.status != ContentStatus.APPROVED:
-        return content, None
+    if not content:
+        return None, None
 
     text = content.edited_text or content.generated_text
     return content, text

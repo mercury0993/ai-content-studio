@@ -48,7 +48,7 @@ function handleExportMarkdown() {
 
     <el-descriptions :column="2" border style="margin-bottom: 16px;">
       <el-descriptions-item label="状态">{{ content.status }}</el-descriptions-item>
-      <el-descriptions-item label="Token 消耗">{{ content.token_usage }}</el-descriptions-item>
+      <el-descriptions-item label="Token 消耗">{{ content.token_usage || '暂不支持' }}</el-descriptions-item>
       <el-descriptions-item label="生成耗时">{{ content.generation_time_ms }}ms</el-descriptions-item>
       <el-descriptions-item label="创建时间">{{ new Date(content.created_at).toLocaleString() }}</el-descriptions-item>
     </el-descriptions>

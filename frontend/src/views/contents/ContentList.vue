@@ -99,7 +99,11 @@ function truncate(text: string, len: number) {
           <el-tag :type="statusMap[row.status]?.type as any">{{ statusMap[row.status]?.label }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="token_usage" label="Token" width="80" />
+      <el-table-column label="Token" width="100">
+        <template #default="{ row }">
+          {{ row.token_usage || '暂不支持' }}
+        </template>
+      </el-table-column>
       <el-table-column label="生成时间" width="120">
         <template #default="{ row }">
           {{ row.generation_time_ms }}ms
