@@ -114,4 +114,5 @@ ai-content-studio/
 - 仓库：https://github.com/mercury0993/ai-content-studio
 - 分支：`feature/ai-content-studio`
 - 所有代码已提交，敏感信息已排除且历史已清理
-- 版本：v1.0.0（首个正式版本）
+- 最新版本：v1.2.0（企业级 UI + 安全加固）
+- [GitHub Releases](https://github.com/mercury0993/ai-content-studio/releases)
