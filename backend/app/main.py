@@ -75,24 +75,24 @@ async def lifespan(app: FastAPI):
             prompts_data = [
                 {
                     "title": "产品营销文案",
-                    "content": "请为 {{product_name}} 写一段面向 {{target_audience}} 的营销文案，突出产品的核心优势。",
+                    "content": "请为 {{产品名称}} 写一段面向 {{目标用户}} 的营销文案，突出产品的核心优势。",
                     "category": "marketing",
                     "tags": ["营销", "文案"],
-                    "variables": [{"name": "product_name", "required": True}, {"name": "target_audience", "required": True}],
+                    "variables": [{"name": "产品名称", "required": True}, {"name": "目标用户", "required": True}],
                 },
                 {
                     "title": "技术文档生成",
-                    "content": "请为 {{product_name}} 编写一份技术架构文档，包含系统概述、技术栈、架构设计和部署方案。",
+                    "content": "请为 {{产品名称}} 编写一份技术架构文档，包含系统概述、技术栈、架构设计和部署方案。",
                     "category": "tech_doc",
                     "tags": ["技术", "文档"],
-                    "variables": [{"name": "product_name", "required": True}],
+                    "variables": [{"name": "产品名称", "required": True}],
                 },
                 {
                     "title": "社交媒体帖子",
-                    "content": "请为 {{product_name}} 写一条面向 {{target_audience}} 的社交媒体推广帖子，包含 emoji 和话题标签。",
+                    "content": "请为 {{产品名称}} 写一条面向 {{目标用户}} 的社交媒体推广帖子，包含 emoji 和话题标签。",
                     "category": "social_media",
                     "tags": ["社交媒体", "推广"],
-                    "variables": [{"name": "product_name", "required": True}, {"name": "target_audience", "required": True}],
+                    "variables": [{"name": "产品名称", "required": True}, {"name": "目标用户", "required": True}],
                 },
             ]
             for pd in prompts_data:
