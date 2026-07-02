@@ -9,6 +9,7 @@ const form = ref({ username: '', email: '', password: '' })
 const loading = ref(false)
 
 async function handleRegister() {
+  if (loading.value) return
   if (!form.value.username || !form.value.email || !form.value.password) {
     ElMessage.warning('请填写所有字段')
     return
@@ -41,7 +42,7 @@ async function handleRegister() {
           <el-input v-model="form.password" type="password" placeholder="密码" prefix-icon="Lock" show-password />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :loading="loading" @click="handleRegister" style="width:100%">注册</el-button>
+          <el-button type="primary" native-type="submit" :loading="loading" style="width:100%">注册</el-button>
         </el-form-item>
         <div style="text-align:center">
           <router-link to="/login">已有账号？登录</router-link>

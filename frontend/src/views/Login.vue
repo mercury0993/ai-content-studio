@@ -8,6 +8,7 @@ const form = ref({ email: '', password: '' })
 const loading = ref(false)
 
 async function handleLogin() {
+  if (loading.value) return
   if (!form.value.email || !form.value.password) {
     ElMessage.warning('请输入邮箱和密码')
     return
@@ -36,7 +37,7 @@ async function handleLogin() {
           <el-input v-model="form.password" type="password" placeholder="密码" prefix-icon="Lock" show-password />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :loading="loading" @click="handleLogin" style="width:100%">登录</el-button>
+          <el-button type="primary" native-type="submit" :loading="loading" style="width:100%">登录</el-button>
         </el-form-item>
         <div style="text-align:center">
           <router-link to="/register">没有账号？注册</router-link>

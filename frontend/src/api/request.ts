@@ -19,10 +19,15 @@ request.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
+      const isPublicPage = router.currentRoute.value.meta?.public
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
-      router.push('/login')
-      ElMessage.error('登录已过期，请重新登录')
+      if (isPublicPage) {
+        ElMessage.error(error.response?.data?.detail || '请求失败')
+      } else {
+        router.push('/login')
+        ElMessage.error('登录已过期，请重新登录')
+      }
     } else {
       ElMessage.error(error.response?.data?.detail || '请求失败')
     }
