@@ -113,7 +113,8 @@ ai-content-studio/
 - `SECRET_KEY`、`POSTGRES_PASSWORD`、`ADMIN_PASSWORD` 均通过环境变量配置
 - 数据库密码和管理员密码不在代码中硬编码
 - CORS 通过 `CORS_ORIGINS` 环境变量限制（默认仅 `http://localhost`）
-- API 速率限制：全局限 60 req/min，登录/注册更严格
+- API 速率限制：全局限 60 req/min，登录 10/min，注册 5/min
+- 密码复杂度：注册/修改密码须同时包含字母和数字
 - 按钮级权限控制：viewer 角色看不到编辑/删除/审批按钮
 
 ## Git 记录
