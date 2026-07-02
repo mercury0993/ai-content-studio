@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 import pytest
 import pytest_asyncio
@@ -11,7 +12,10 @@ from app.core.security import hash_password
 from app.main import app
 from app.models.user import User, UserRole
 
-TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_content_studio_test"
+TEST_DATABASE_URL = os.getenv(
+    "TEST_DATABASE_URL",
+    "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_content_studio_test",
+)
 
 engine = create_async_engine(TEST_DATABASE_URL, echo=False, poolclass=NullPool)
 test_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

@@ -9,6 +9,9 @@ from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse
 
 
 async def register(db: AsyncSession, req: RegisterRequest) -> User:
+    if not req.username.strip() or not req.email.strip() or not req.password.strip():
+        raise ValueError("Username, email and password are required")
+
     existing = await db.execute(select(User).where((User.email == req.email) | (User.username == req.username)))
     if existing.scalar_one_or_none():
         raise ValueError("Email or username already exists")

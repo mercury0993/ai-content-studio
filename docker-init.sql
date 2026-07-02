@@ -1,0 +1,1 @@
+CREATE DATABASE ai_content_studio_test;
