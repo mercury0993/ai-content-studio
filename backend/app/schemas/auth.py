@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 class RegisterRequest(BaseModel):
     username: str = Field(min_length=1, max_length=50)
     email: str = Field(min_length=1, max_length=100, pattern=r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
-    password: str = Field(min_length=6, max_length=100)
+    password: str = Field(min_length=8, max_length=100)
 
 
 class LoginRequest(BaseModel):

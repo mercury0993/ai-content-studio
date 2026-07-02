@@ -15,3 +15,6 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+if not settings.SECRET_KEY:
+    raise RuntimeError("SECRET_KEY is not set. Please configure it in backend/.env")
