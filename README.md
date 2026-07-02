@@ -14,11 +14,11 @@ AI 内容工坊后台管理系统 — 基于 Prompt 模板的 AI 内容生成、
 - 用户认证与 RBAC 权限（admin/editor/viewer）
 - 多工作空间管理
 - Prompt 模板管理（CRUD + 变量提取 + 版本历史）
-- AI 模型配置
-- AI 内容生成（模拟模式 + 流式输出效果）
-- 内容审核工作流（提交/通过/驳回/批量）
+- AI 模型配置（DeepSeek / OpenAI / Claude / 文心一言）
+- AI 内容生成（DeepSeek API + SSE 真流式输出）
+- 内容审核工作流（一键提交 / 通过 / 驳回 / 批量）
 - 数据看板（ECharts 图表）
-- 内容导出（Markdown/ZIP）
+- 内容导出（Markdown / ZIP）
 - 个人设置（资料修改 + 密码修改）
 - 按钮级权限控制
 
@@ -29,9 +29,10 @@ AI 内容工坊后台管理系统 — 基于 Prompt 模板的 AI 内容生成、
 git clone <repo-url>
 cd ai-content-studio
 
-# 2. 配置环境变量（必须修改 SECRET_KEY 和 POSTGRES_PASSWORD）
+# 2. 配置环境变量
+cp .env.example .env
 cp backend/.env.example backend/.env
-# 编辑 .env，设置你自己的 SECRET_KEY 和密码
+# 编辑 backend/.env，设置 SECRET_KEY、POSTGRES_PASSWORD 和 DEEPSEEK_API_KEY
 
 # 3. 启动服务
 docker compose up -d
@@ -68,6 +69,14 @@ ai-content-studio/
 
 启动后访问 http://localhost:8000/docs 查看 Swagger 文档。
 
+## DeepSeek API 接入
+
+1. 在 [DeepSeek 开放平台](https://platform.deepseek.com) 获取 API Key
+2. 在 `backend/.env` 中设置 `DEEPSEEK_API_KEY=你的key`
+3. 重建容器：`docker compose build backend && docker compose up -d`
+4. 登录系统 → AI 模型 → 添加模型（DeepSeek 默认已填好，直接创建即可）
+5. 内容生成页面选择 DeepSeek 模型，享受 SSE 真流式输出
+
 ## 功能截图
 
 | 页面 | 说明 |
@@ -77,7 +86,7 @@ ai-content-studio/
 | Prompt 管理 | CRUD + 变量提取 + 版本历史 |
 | 内容生成 | 选择 Prompt → 填变量 → 选模型 → 流式生成 |
 | 审核中心 | 提交/通过/驳回/批量审核 |
-| AI 模型 | 配置多个 AI 模型（模拟模式） |
+| AI 模型 | 配置 AI 模型（DeepSeek 默认，支持多提供商） |
 
 ## 默认账号
 
