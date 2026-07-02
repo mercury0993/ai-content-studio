@@ -61,17 +61,10 @@ async def generate_content_stream(
     member = await workspace_service.check_workspace_access(db, req.workspace_id, current_user.id)
     if not member or member.role.value == "viewer":
         raise HTTPException(status_code=403, detail="Insufficient permissions")
-    from sqlalchemy import select
-    from app.models.prompt import Prompt
-    from app.models.ai_model import AIModel
-
-    prompt = (await db.execute(select(Prompt).where(Prompt.id == req.prompt_id))).scalar_one_or_none()
-    if not prompt:
-        raise HTTPException(status_code=404, detail="Prompt not found")
-
-    model = (await db.execute(select(AIModel).where(AIModel.id == req.model_id))).scalar_one_or_none()
-    if not model:
-        raise HTTPException(status_code=404, detail="Model not found")
+    try:
+        await content_service.validate_stream_request(db, req)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
     return StreamingResponse(
         content_service.generate_content_stream(db, current_user.id, req),

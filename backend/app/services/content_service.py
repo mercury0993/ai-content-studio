@@ -42,6 +42,16 @@ async def generate_content(db: AsyncSession, user_id: uuid.UUID, req: ContentGen
     return content
 
 
+async def validate_stream_request(db: AsyncSession, req: ContentGenerate) -> None:
+    """Validates prompt and model exist before streaming. Raises ValueError if not found."""
+    prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id, Prompt.workspace_id == req.workspace_id))
+    if not prompt_result.scalar_one_or_none():
+        raise ValueError("Prompt not found")
+    model_result = await db.execute(select(AIModel).where(AIModel.id == req.model_id, AIModel.workspace_id == req.workspace_id))
+    if not model_result.scalar_one_or_none():
+        raise ValueError("Model not found")
+
+
 async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: ContentGenerate) -> AsyncGenerator[str, None]:
     prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id, Prompt.workspace_id == req.workspace_id))
     prompt = prompt_result.scalar_one_or_none()
