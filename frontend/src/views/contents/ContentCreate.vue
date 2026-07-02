@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { listPrompts } from '@/api/prompts'
 import { listModels } from '@/api/aiModels'
-import { generateContent } from '@/api/contents'
+import { generateContentStream } from '@/api/contents'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -18,7 +18,6 @@ const variables = ref<Record<string, string>>({})
 const generating = ref(false)
 const resultText = ref('')
 const showResult = ref(false)
-const streamInterval = ref<number | null>(null)
 
 onMounted(async () => {
   if (!workspaceStore.currentWorkspace) return
@@ -56,30 +55,25 @@ async function handleGenerate() {
   showResult.value = true
   resultText.value = ''
 
-  try {
-    const data: any = await generateContent({
+  await generateContentStream(
+    {
       workspace_id: workspaceStore.currentWorkspace.id,
       prompt_id: selectedPrompt.value,
       model_id: selectedModelId.value,
       variables: variables.value,
-    })
-
-    const fullText = data.generated_text
-    let index = 0
-    streamInterval.value = window.setInterval(() => {
-      if (index < fullText.length) {
-        const charsToAdd = Math.floor(Math.random() * 3) + 1
-        resultText.value += fullText.slice(index, index + charsToAdd)
-        index += charsToAdd
-      } else {
-        if (streamInterval.value) clearInterval(streamInterval.value)
-        generating.value = false
-      }
-    }, 30)
-  } catch {
-    generating.value = false
-    showResult.value = false
-  }
+    },
+    (chunk: string) => {
+      resultText.value += chunk
+    },
+    () => {
+      generating.value = false
+    },
+    (error: string) => {
+      ElMessage.error(error)
+      generating.value = false
+      showResult.value = false
+    },
+  )
 }
 
 function handleCopy() {
