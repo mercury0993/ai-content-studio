@@ -23,6 +23,7 @@ const form = ref({
 
 const providers = [
   { label: 'OpenAI', value: 'openai' },
+  { label: 'DeepSeek', value: 'deepseek' },
   { label: 'Claude', value: 'claude' },
   { label: '文心一言', value: 'wenxin' },
 ]
@@ -154,7 +155,7 @@ async function handleDelete(id: string) {
           <el-input v-model="form.model_name" placeholder="如：gpt-4o" />
         </el-form-item>
         <el-form-item label="API Key">
-          <el-input v-model="form.api_key" type="password" placeholder="模拟模式下可留空" show-password />
+          <el-input v-model="form.api_key" type="password" placeholder="留空则使用环境变量中的全局 Key" show-password />
         </el-form-item>
         <el-form-item label="Base URL">
           <el-input v-model="form.base_url" placeholder="可选，自定义 API 地址" />
