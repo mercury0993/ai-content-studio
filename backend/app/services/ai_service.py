@@ -5,15 +5,6 @@ from openai import AsyncOpenAI
 from app.core.config import settings
 
 
-def _build_model_config(model) -> dict:
-    return {
-        "api_key": model.api_key or settings.DEEPSEEK_API_KEY,
-        "base_url": model.base_url or "https://api.deepseek.com",
-        "model_name": model.model_name,
-        "default_params": model.default_params or {},
-    }
-
-
 def _build_prompt_text(prompt_content: str, variables: dict | None) -> str:
     text = prompt_content
     for key, value in (variables or {}).items():
@@ -34,9 +25,9 @@ async def deepseek_generate(prompt_text: str, model) -> dict:
 
     start_time = time.time()
     response = await client.chat.completions.create(
+        **(model.default_params or {}),
         model=model.model_name,
         messages=[{"role": "user", "content": prompt_text}],
-        **(model.default_params or {}),
     )
     elapsed_ms = int((time.time() - start_time) * 1000)
 
@@ -59,10 +50,10 @@ async def deepseek_generate_stream(prompt_text: str, model):
     )
 
     stream = await client.chat.completions.create(
+        **(model.default_params or {}),
         model=model.model_name,
         messages=[{"role": "user", "content": prompt_text}],
         stream=True,
-        **(model.default_params or {}),
     )
 
     async for chunk in stream:
