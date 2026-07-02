@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { register } from '@/api/auth'
 import { ElMessage } from 'element-plus'
+import { User, Message, Lock } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const form = ref({ username: '', email: '', password: '' })
@@ -33,13 +34,13 @@ async function handleRegister() {
       <h2>注册账号</h2>
       <el-form @submit.prevent="handleRegister">
         <el-form-item>
-          <el-input v-model="form.username" placeholder="用户名" prefix-icon="User" />
+          <el-input v-model="form.username" placeholder="用户名" :prefix-icon="User" />
         </el-form-item>
         <el-form-item>
-          <el-input v-model="form.email" placeholder="邮箱" prefix-icon="Message" />
+          <el-input v-model="form.email" placeholder="邮箱" :prefix-icon="Message" />
         </el-form-item>
         <el-form-item>
-          <el-input v-model="form.password" type="password" placeholder="密码" prefix-icon="Lock" show-password />
+          <el-input v-model="form.password" type="password" placeholder="密码" :prefix-icon="Lock" show-password />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" native-type="submit" :loading="loading" style="width:100%">注册</el-button>
