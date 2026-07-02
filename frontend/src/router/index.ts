@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useWorkspaceStore } from '@/stores/workspace'
 
 const routes = [
   {
@@ -93,6 +94,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
+  const workspaceStore = useWorkspaceStore()
 
   if (to.meta.public) {
     next()
@@ -110,6 +112,15 @@ router.beforeEach(async (to, from, next) => {
     } catch {
       next('/login')
       return
+    }
+  }
+
+  // Ensure workspaces are loaded on first navigation
+  if (workspaceStore.workspaces.length === 0) {
+    try {
+      await workspaceStore.fetchWorkspaces()
+    } catch {
+      // Non-critical, pages will show workspace warning
     }
   }
 
