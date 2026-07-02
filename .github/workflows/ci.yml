@@ -57,11 +57,15 @@ jobs:
 
       - name: Install dependencies
         working-directory: frontend
-        run: npm ci
+        run: npm install
 
       - name: Type check
         working-directory: frontend
         run: npx vue-tsc --noEmit
+
+      - name: Run tests
+        working-directory: frontend
+        run: npm test
 
       - name: Build
         working-directory: frontend
