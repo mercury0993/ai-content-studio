@@ -1,5 +1,6 @@
 import asyncio
 import os
+from unittest.mock import AsyncMock, patch
 
 import pytest
 import pytest_asyncio
@@ -71,3 +72,24 @@ async def admin_user(db):
 async def admin_token(client, admin_user):
     resp = await client.post("/api/v1/auth/login", json={"email": "testadmin@example.com", "password": "password123"})
     return resp.json()["access_token"]
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def mock_ai_service():
+    """Mock DeepSeek API calls so tests don't need real API keys."""
+    mock_generate = AsyncMock(return_value={
+        "generated_text": "Mock generated content for testing.",
+        "token_usage": 150,
+        "generation_time_ms": 500,
+    })
+
+    async def mock_stream(text):
+        for char in text:
+            yield char
+
+    mock_stream_gen = AsyncMock()
+    mock_stream_gen.return_value = mock_stream("Mock streaming content.")
+
+    with patch("app.services.ai_service.deepseek_generate", mock_generate), \
+         patch("app.services.ai_service.deepseek_generate_stream", mock_stream_gen):
+        yield
