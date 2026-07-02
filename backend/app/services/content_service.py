@@ -13,12 +13,12 @@ from app.services import ai_service
 
 
 async def generate_content(db: AsyncSession, user_id: uuid.UUID, req: ContentGenerate) -> Content:
-    prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id))
+    prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id, Prompt.workspace_id == req.workspace_id))
     prompt = prompt_result.scalar_one_or_none()
     if not prompt:
         raise ValueError("Prompt not found")
 
-    model_result = await db.execute(select(AIModel).where(AIModel.id == req.model_id))
+    model_result = await db.execute(select(AIModel).where(AIModel.id == req.model_id, AIModel.workspace_id == req.workspace_id))
     model = model_result.scalar_one_or_none()
     if not model:
         raise ValueError("Model not found")
@@ -43,12 +43,12 @@ async def generate_content(db: AsyncSession, user_id: uuid.UUID, req: ContentGen
 
 
 async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: ContentGenerate) -> AsyncGenerator[str, None]:
-    prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id))
+    prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id, Prompt.workspace_id == req.workspace_id))
     prompt = prompt_result.scalar_one_or_none()
     if not prompt:
         raise ValueError("Prompt not found")
 
-    model_result = await db.execute(select(AIModel).where(AIModel.id == req.model_id))
+    model_result = await db.execute(select(AIModel).where(AIModel.id == req.model_id, AIModel.workspace_id == req.workspace_id))
     model = model_result.scalar_one_or_none()
     if not model:
         raise ValueError("Model not found")

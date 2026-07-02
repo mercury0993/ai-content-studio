@@ -21,11 +21,14 @@ async def deepseek_generate(prompt_text: str, model) -> dict:
     client = AsyncOpenAI(
         api_key=api_key,
         base_url=model.base_url or "https://api.deepseek.com",
+        timeout=60.0,
+        max_retries=0,
     )
 
+    params = {k: v for k, v in (model.default_params or {}).items() if k not in ("model", "messages", "stream")}
     start_time = time.time()
     response = await client.chat.completions.create(
-        **(model.default_params or {}),
+        **params,
         model=model.model_name,
         messages=[{"role": "user", "content": prompt_text}],
     )
@@ -47,10 +50,13 @@ async def deepseek_generate_stream(prompt_text: str, model):
     client = AsyncOpenAI(
         api_key=api_key,
         base_url=model.base_url or "https://api.deepseek.com",
+        timeout=60.0,
+        max_retries=0,
     )
 
+    params = {k: v for k, v in (model.default_params or {}).items() if k not in ("model", "messages", "stream")}
     stream = await client.chat.completions.create(
-        **(model.default_params or {}),
+        **params,
         model=model.model_name,
         messages=[{"role": "user", "content": prompt_text}],
         stream=True,
