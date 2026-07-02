@@ -30,8 +30,9 @@ async def list_workspaces(db: AsyncSession, user_id: uuid.UUID) -> list[Workspac
         .join(WorkspaceMember)
         .where(WorkspaceMember.user_id == user_id)
         .options(selectinload(Workspace.members))
+        .order_by(Workspace.created_at.asc())
     )
-    return list(result.scalars().all())
+    return list(result.scalars().unique().all())
 
 
 async def get_workspace(db: AsyncSession, workspace_id: uuid.UUID) -> Workspace | None:
