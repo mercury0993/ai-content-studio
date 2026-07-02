@@ -29,10 +29,10 @@ describe('Register.vue', () => {
 
   it('renders register form', () => {
     const wrapper = mountRegister()
-    expect(wrapper.find('h2').text()).toBe('注册账号')
+    expect(wrapper.find('h1').text()).toBe('创建账号')
     expect(wrapper.find('input[placeholder="用户名"]').exists()).toBe(true)
     expect(wrapper.find('input[placeholder="邮箱"]').exists()).toBe(true)
-    expect(wrapper.find('input[placeholder="密码"]').exists()).toBe(true)
+    expect(wrapper.find('input[placeholder="密码（至少8位）"]').exists()).toBe(true)
   })
 
   it('shows warning when fields are empty', async () => {
@@ -46,7 +46,7 @@ describe('Register.vue', () => {
     const wrapper = mountRegister()
     await wrapper.find('input[placeholder="用户名"]').setValue('newuser')
     await wrapper.find('input[placeholder="邮箱"]').setValue('new@test.com')
-    await wrapper.find('input[placeholder="密码"]').setValue('password123')
+    await wrapper.find('input[placeholder="密码（至少8位）"]').setValue('password123')
     mockRegister.mockResolvedValue({ id: '1' })
     await wrapper.find('form').trigger('submit.prevent')
     expect(mockRegister).toHaveBeenCalledWith('newuser', 'new@test.com', 'password123')
@@ -57,7 +57,7 @@ describe('Register.vue', () => {
     const wrapper = mountRegister()
     await wrapper.find('input[placeholder="用户名"]').setValue('newuser')
     await wrapper.find('input[placeholder="邮箱"]').setValue('new@test.com')
-    await wrapper.find('input[placeholder="密码"]').setValue('password123')
+    await wrapper.find('input[placeholder="密码（至少8位）"]').setValue('password123')
     // simulate slow API: don't resolve between triggers
     mockRegister.mockReturnValue(new Promise(() => {}))
     await wrapper.find('form').trigger('submit.prevent')

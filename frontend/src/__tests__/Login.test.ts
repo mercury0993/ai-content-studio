@@ -38,7 +38,7 @@ describe('Login.vue', () => {
 
   it('renders login form', () => {
     const wrapper = mountLogin()
-    expect(wrapper.find('h2').text()).toBe('AI Content Studio')
+    expect(wrapper.find('h1').text()).toBe('AI Content Studio')
     expect(wrapper.find('input[placeholder="邮箱"]').exists()).toBe(true)
     expect(wrapper.find('input[placeholder="密码"]').exists()).toBe(true)
   })
