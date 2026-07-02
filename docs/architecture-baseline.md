@@ -227,3 +227,5 @@ curl http://localhost:8000/api/health
 | 2026-06-16 | v1 | 阻塞项修复验证 | 4 | 2 | 0 | ✅ 全部通过，export 已有 service 层，workspace 跨层 SQL 已消除 |
 | 2026-06-16 | v1 | 增量验收（CI修复后） | 6 | 0 | 0 | ✅ 全部通过，17 commits 均为测试/配置/修复，架构未变 |
 | 2026-07-02 | v1 | 增量验收（前端导出+登录修复后） | 5 | 1 | 0 | ⚠️ 有条件通过，RegisterRequest 缺少字段长度校验 |
+| 2026-07-03 | v1 | 增量验收（v1.3.0 DeepSeek API） | 5 | 1 | 0 | ⚠️ 有条件通过，contents.py API层含内联SQL查询 |
+| 2026-07-03 | v1 | 警告修复（SQL提取至service层） | 6 | 0 | 0 | ✅ 全部通过，API层零SQL，新增 validate_stream_request 消除跨层泄露 |
