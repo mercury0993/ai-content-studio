@@ -1,11 +1,19 @@
+import re
 import uuid
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class RegisterRequest(BaseModel):
     username: str = Field(min_length=1, max_length=50)
     email: str = Field(min_length=1, max_length=100, pattern=r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
-    password: str = Field(min_length=8, max_length=100, pattern=r'^(?=.*[A-Za-z])(?=.*\d).+$')
+    password: str = Field(min_length=8, max_length=100)
+
+    @field_validator("password")
+    @classmethod
+    def password_must_have_letters_and_digits(cls, v: str) -> str:
+        if not re.search(r'[A-Za-z]', v) or not re.search(r'\d', v):
+            raise ValueError("密码必须同时包含字母和数字")
+        return v
 
 
 class LoginRequest(BaseModel):
@@ -40,4 +48,11 @@ class UpdateProfileRequest(BaseModel):
 
 class ChangePasswordRequest(BaseModel):
     current_password: str
-    new_password: str = Field(min_length=8, max_length=100, pattern=r'^(?=.*[A-Za-z])(?=.*\d).+$')
+    new_password: str = Field(min_length=8, max_length=100)
+
+    @field_validator("new_password")
+    @classmethod
+    def new_password_must_have_letters_and_digits(cls, v: str) -> str:
+        if not re.search(r'[A-Za-z]', v) or not re.search(r'\d', v):
+            raise ValueError("密码必须同时包含字母和数字")
+        return v
