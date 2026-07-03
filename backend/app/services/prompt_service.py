@@ -47,7 +47,8 @@ async def list_prompts(
     if category:
         query = query.where(Prompt.category == category)
     if search:
-        query = query.where(or_(Prompt.title.ilike(f"%{search}%"), Prompt.content.ilike(f"%{search}%")))
+        escaped = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        query = query.where(or_(Prompt.title.ilike(f"%{escaped}%"), Prompt.content.ilike(f"%{escaped}%")))
 
     count_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(count_query)).scalar()

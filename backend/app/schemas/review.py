@@ -11,9 +11,11 @@ class ReviewAction(BaseModel):
     comment: str | None = None
 
 
+from typing import Literal
+
 class BatchReview(BaseModel):
     content_ids: list[uuid.UUID]
-    action: str  # "approve" or "reject"
+    action: Literal["approve", "reject"]
     comment: str | None = None
 
 
