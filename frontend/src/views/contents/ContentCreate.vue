@@ -109,16 +109,16 @@ function handleCopy() {
 
 <template>
   <div>
-    <h3>生成内容</h3>
-    <el-form label-width="100px" style="max-width: 800px; margin-top: 16px;">
+    <h3 class="page-heading">生成内容</h3>
+    <el-form label-width="100px" class="generate-form">
       <el-form-item label="Prompt 模板">
-        <el-select v-model="selectedPrompt" placeholder="选择 Prompt" @change="onPromptChange" style="width: 100%;">
+        <el-select v-model="selectedPrompt" placeholder="选择 Prompt" @change="onPromptChange" class="full-width">
           <el-option v-for="p in prompts" :key="p.id" :label="p.title" :value="p.id" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="AI 模型">
-        <el-select v-model="selectedModelId" placeholder="选择模型" style="width: 100%;">
+        <el-select v-model="selectedModelId" placeholder="选择模型" class="full-width">
           <el-option v-for="m in models" :key="m.id" :label="`${m.name} (${m.model_name})`" :value="m.id" :disabled="!m.is_active" />
         </el-select>
       </el-form-item>
@@ -133,10 +133,10 @@ function handleCopy() {
       </el-form-item>
     </el-form>
 
-    <div v-if="showResult" style="margin-top: 24px; max-width: 800px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+    <div v-if="showResult" class="result-area">
+      <div class="result-header">
         <h4>生成结果</h4>
-        <div style="display: flex; gap: 8px;">
+        <div class="result-actions">
           <el-button size="small" type="success" @click="handleSubmitReview" :disabled="generating || !generatedContentId" :loading="submitting">提交审核</el-button>
           <el-button size="small" @click="handleCopy" :disabled="generating">复制</el-button>
         </div>
@@ -145,3 +145,27 @@ function handleCopy() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.generate-form {
+  max-width: 800px;
+  margin-top: 16px;
+}
+.full-width {
+  width: 100%;
+}
+.result-area {
+  margin-top: 24px;
+  max-width: 800px;
+}
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.result-actions {
+  display: flex;
+  gap: 8px;
+}
+</style>

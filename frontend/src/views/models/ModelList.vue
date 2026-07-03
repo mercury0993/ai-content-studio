@@ -3,6 +3,7 @@ import { ref, watch, onMounted } from 'vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { listModels, createModel, updateModel, deleteModel, toggleModel } from '@/api/aiModels'
 import { canEdit } from '@/utils/permission'
+import SkeletonTable from '@/components/SkeletonTable.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const workspaceStore = useWorkspaceStore()
@@ -10,6 +11,7 @@ const models = ref<any[]>([])
 const showCreate = ref(false)
 const editingModel = ref<any>(null)
 const loading = ref(false)
+const firstLoad = ref(true)
 
 const providerDefaults: Record<string, { base_url: string; model_name: string }> = {
   openai: { base_url: 'https://api.openai.com/v1', model_name: 'gpt-4o' },
@@ -51,6 +53,7 @@ async function fetchModels() {
   loading.value = true
   try {
     models.value = await listModels(workspaceStore.currentWorkspace.id) as any
+    firstLoad.value = false
   } finally {
     loading.value = false
   }
@@ -133,34 +136,42 @@ async function handleDelete(id: string) {
 
 <template>
   <div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h3>AI 模型配置</h3>
+    <div class="page-header">
+      <h3 class="page-heading">AI 模型配置</h3>
       <el-button v-if="canEdit()" type="primary" @click="resetForm(); editingModel = null; showCreate = true">添加模型</el-button>
     </div>
 
-    <el-table :data="models" v-loading="loading" style="width: 100%">
-      <el-table-column prop="name" label="模型名称" />
-      <el-table-column prop="provider" label="提供商" width="120" />
-      <el-table-column prop="model_name" label="模型标识" width="180" />
-      <el-table-column label="状态" width="100">
-        <template #default="{ row }">
-          <el-switch :model-value="row.is_active" @change="handleToggle(row)" />
-        </template>
-      </el-table-column>
-      <el-table-column label="默认参数" width="200">
-        <template #default="{ row }">
-          <span v-if="row.default_params">
-            T={{ row.default_params.temperature }}, Tokens={{ row.default_params.max_tokens }}
-          </span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="160">
-        <template #default="{ row }">
-          <el-button v-if="canEdit()" size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button v-if="canEdit()" size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <SkeletonTable v-if="firstLoad && loading" />
+
+    <template v-else-if="models.length === 0">
+      <el-empty description="暂无模型配置" />
+    </template>
+
+    <template v-else>
+      <el-table :data="models" v-loading="loading">
+        <el-table-column prop="name" label="模型名称" />
+        <el-table-column prop="provider" label="提供商" width="120" />
+        <el-table-column prop="model_name" label="模型标识" width="180" />
+        <el-table-column label="状态" width="100">
+          <template #default="{ row }">
+            <el-switch :model-value="row.is_active" @change="handleToggle(row)" />
+          </template>
+        </el-table-column>
+        <el-table-column label="默认参数" width="200">
+          <template #default="{ row }">
+            <span v-if="row.default_params">
+              T={{ row.default_params.temperature }}, Tokens={{ row.default_params.max_tokens }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="160">
+          <template #default="{ row }">
+            <el-button v-if="canEdit()" size="small" @click="openEdit(row)">编辑</el-button>
+            <el-button v-if="canEdit()" size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </template>
 
     <el-dialog v-model="showCreate" :title="editingModel ? '编辑模型' : '添加模型'" width="500px">
       <el-form label-width="100px">
@@ -195,3 +206,15 @@ async function handleDelete(id: string) {
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.page-heading {
+  margin-bottom: 0;
+}
+</style>

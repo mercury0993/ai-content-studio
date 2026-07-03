@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { createWorkspace, deleteWorkspace } from '@/api/workspaces'
 import { canEdit } from '@/utils/permission'
+import SkeletonTable from '@/components/SkeletonTable.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const workspaceStore = useWorkspaceStore()
@@ -11,9 +12,11 @@ const router = useRouter()
 const showCreate = ref(false)
 const form = ref({ name: '', description: '' })
 const loading = ref(false)
+const firstLoad = ref(true)
 
-onMounted(() => {
-  workspaceStore.fetchWorkspaces()
+onMounted(async () => {
+  await workspaceStore.fetchWorkspaces()
+  firstLoad.value = false
 })
 
 async function handleCreate() {
@@ -47,25 +50,33 @@ function goDetail(id: string) {
 
 <template>
   <div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h3>工作空间</h3>
+    <div class="page-header">
+      <h3 class="page-heading">工作空间</h3>
       <el-button v-if="canEdit()" type="primary" @click="showCreate = true">新建空间</el-button>
     </div>
 
-    <el-row :gutter="16">
-      <el-col :span="8" v-for="ws in workspaceStore.workspaces" :key="ws.id">
-        <el-card style="margin-bottom: 16px; cursor: pointer;" @click="goDetail(ws.id)">
-          <template #header>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-weight: bold;">{{ ws.name }}</span>
-              <el-button v-if="canEdit()" size="small" type="danger" @click.stop="handleDelete(ws.id, ws.name)">删除</el-button>
-            </div>
-          </template>
-          <p>{{ ws.description || '暂无描述' }}</p>
-          <p style="color: #999; font-size: 12px;">创建于 {{ new Date(ws.created_at).toLocaleDateString() }}</p>
-        </el-card>
-      </el-col>
-    </el-row>
+    <SkeletonTable v-if="firstLoad" />
+
+    <template v-else-if="workspaceStore.workspaces.length === 0">
+      <el-empty description="暂无工作空间" />
+    </template>
+
+    <template v-else>
+      <el-row :gutter="16">
+        <el-col :span="8" v-for="ws in workspaceStore.workspaces" :key="ws.id">
+          <el-card class="ws-card" @click="goDetail(ws.id)">
+            <template #header>
+              <div class="ws-header">
+                <span class="ws-name">{{ ws.name }}</span>
+                <el-button v-if="canEdit()" size="small" type="danger" @click.stop="handleDelete(ws.id, ws.name)">删除</el-button>
+              </div>
+            </template>
+            <p>{{ ws.description || '暂无描述' }}</p>
+            <p class="ws-date">创建于 {{ new Date(ws.created_at).toLocaleDateString() }}</p>
+          </el-card>
+        </el-col>
+      </el-row>
+    </template>
 
     <el-dialog v-model="showCreate" title="新建工作空间">
       <el-form>
@@ -83,3 +94,31 @@ function goDetail(id: string) {
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.page-heading {
+  margin-bottom: 0;
+}
+.ws-card {
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+.ws-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ws-name {
+  font-weight: bold;
+}
+.ws-date {
+  color: #999;
+  font-size: 12px;
+}
+</style>

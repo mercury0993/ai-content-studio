@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getContent, updateContent } from '@/api/contents'
 import { exportMarkdown } from '@/api/export'
+import { formatDate } from '@/utils/common'
 import { ElMessage } from 'element-plus'
 
 const route = useRoute()
@@ -35,9 +36,9 @@ function handleExportMarkdown() {
 
 <template>
   <div v-if="content">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h3>内容详情</h3>
-      <div>
+    <div class="detail-header">
+      <h3 class="page-heading">内容详情</h3>
+      <div class="detail-actions">
         <el-button @click="handleCopy">复制</el-button>
         <el-button v-if="!editing" @click="editing = true">编辑</el-button>
         <el-button v-if="editing" type="primary" @click="handleSave">保存</el-button>
@@ -46,13 +47,32 @@ function handleExportMarkdown() {
       </div>
     </div>
 
-    <el-descriptions :column="2" border style="margin-bottom: 16px;">
+    <el-descriptions :column="2" border class="detail-meta">
       <el-descriptions-item label="状态">{{ content.status }}</el-descriptions-item>
       <el-descriptions-item label="Token 消耗">{{ content.token_usage || '暂不支持' }}</el-descriptions-item>
       <el-descriptions-item label="生成耗时">{{ content.generation_time_ms }}ms</el-descriptions-item>
-      <el-descriptions-item label="创建时间">{{ new Date(content.created_at).toLocaleString() }}</el-descriptions-item>
+      <el-descriptions-item label="创建时间">{{ formatDate(content.created_at) }}</el-descriptions-item>
     </el-descriptions>
 
     <el-input v-model="editText" type="textarea" :rows="15" :readonly="!editing" />
   </div>
 </template>
+
+<style scoped>
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.page-heading {
+  margin-bottom: 0;
+}
+.detail-actions {
+  display: flex;
+  gap: 8px;
+}
+.detail-meta {
+  margin-bottom: 16px;
+}
+</style>

@@ -2,8 +2,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useWorkspaceStore } from '@/stores/workspace'
 
 const userStore = useUserStore()
+const workspaceStore = useWorkspaceStore()
 const router = useRouter()
 const isCollapse = ref(false)
 
@@ -13,6 +15,10 @@ function handleCommand(command: string) {
   } else if (command === 'settings') {
     router.push('/settings')
   }
+}
+
+function handleWorkspaceChange(id: string) {
+  workspaceStore.switchWorkspace(id)
 }
 </script>
 
@@ -66,10 +72,27 @@ function handleCommand(command: string) {
 
     <el-container class="app-main">
       <el-header class="app-header">
-        <el-icon class="collapse-btn" @click="isCollapse = !isCollapse">
-          <Fold v-if="!isCollapse" />
-          <Expand v-else />
-        </el-icon>
+        <div class="header-left">
+          <el-icon class="collapse-btn" @click="isCollapse = !isCollapse">
+            <Fold v-if="!isCollapse" />
+            <Expand v-else />
+          </el-icon>
+
+          <el-select
+            :model-value="workspaceStore.currentWorkspace?.id"
+            @change="handleWorkspaceChange"
+            placeholder="选择空间"
+            size="default"
+            class="workspace-switcher"
+          >
+            <el-option
+              v-for="ws in workspaceStore.workspaces"
+              :key="ws.id"
+              :label="ws.name"
+              :value="ws.id"
+            />
+          </el-select>
+        </div>
 
         <div class="header-right">
           <el-dropdown @command="handleCommand" trigger="click">
@@ -165,6 +188,12 @@ function handleCommand(command: string) {
   flex-shrink: 0;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .collapse-btn {
   cursor: pointer;
   font-size: 18px;
@@ -174,6 +203,10 @@ function handleCommand(command: string) {
 
 .collapse-btn:hover {
   color: var(--el-text-color-primary);
+}
+
+.workspace-switcher {
+  width: 200px;
 }
 
 .header-right {

@@ -68,11 +68,11 @@ async function handleChangePassword() {
 </script>
 
 <template>
-  <div style="max-width: 600px;">
-    <h3 style="margin-bottom: 24px;">个人设置</h3>
+  <div class="settings-page">
+    <h3 class="settings-title">个人设置</h3>
 
-    <el-card style="margin-bottom: 24px;">
-      <template #header><span style="font-weight: bold;">个人资料</span></template>
+    <el-card class="settings-card">
+      <template #header><span class="card-header-title">个人资料</span></template>
       <el-form label-width="100px">
         <el-form-item label="用户名">
           <el-input v-model="profileForm.username" placeholder="用户名" />
@@ -90,7 +90,7 @@ async function handleChangePassword() {
     </el-card>
 
     <el-card>
-      <template #header><span style="font-weight: bold;">修改密码</span></template>
+      <template #header><span class="card-header-title">修改密码</span></template>
       <el-form label-width="100px">
         <el-form-item label="当前密码">
           <el-input v-model="passwordForm.current_password" type="password" show-password />
@@ -108,3 +108,18 @@ async function handleChangePassword() {
     </el-card>
   </div>
 </template>
+
+<style scoped>
+.settings-page {
+  max-width: 600px;
+}
+.settings-title {
+  margin-bottom: 24px;
+}
+.settings-card {
+  margin-bottom: 24px;
+}
+.card-header-title {
+  font-weight: bold;
+}
+</style>

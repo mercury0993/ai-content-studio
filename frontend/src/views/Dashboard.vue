@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { getStats, getTrend, getModelUsage, getUserRanking, getRecent } from '@/api/dashboard'
+import { statusMap } from '@/utils/common'
+import SkeletonCard from '@/components/SkeletonCard.vue'
+import SkeletonChart from '@/components/SkeletonChart.vue'
+import SkeletonTable from '@/components/SkeletonTable.vue'
 import * as echarts from 'echarts'
 
 const workspaceStore = useWorkspaceStore()
 
 const stats = ref({ prompt_count: 0, content_count: 0, monthly_generated: 0, pending_review: 0 })
 const recentItems = ref<any[]>([])
+const firstLoad = ref(true)
 
 let trendChart: echarts.ECharts | null = null
 let modelChart: echarts.ECharts | null = null
@@ -27,6 +32,7 @@ async function fetchDashboard() {
 
   stats.value = statsData.data
   recentItems.value = recentData.data
+  firstLoad.value = false
 
   await nextTick()
   renderTrendChart(trendData.data)
@@ -51,7 +57,10 @@ function baseChartOptions(): any {
 function renderTrendChart(data: { date: string; count: number }[]) {
   const el = document.getElementById('trend-chart')
   if (!el) return
-  if (!trendChart) trendChart = echarts.init(el)
+  if (trendChart) {
+    trendChart.dispose()
+  }
+  trendChart = echarts.init(el)
   trendChart.setOption({
     ...baseChartOptions(),
     tooltip: { trigger: 'axis' },
@@ -75,7 +84,10 @@ function renderTrendChart(data: { date: string; count: number }[]) {
 function renderModelChart(data: { name: string; count: number }[]) {
   const el = document.getElementById('model-chart')
   if (!el) return
-  if (!modelChart) modelChart = echarts.init(el)
+  if (modelChart) {
+    modelChart.dispose()
+  }
+  modelChart = echarts.init(el)
   modelChart.setOption({
     ...baseChartOptions(),
     tooltip: { trigger: 'item' },
@@ -94,7 +106,10 @@ function renderModelChart(data: { name: string; count: number }[]) {
 function renderRankingChart(data: { username: string; count: number }[]) {
   const el = document.getElementById('ranking-chart')
   if (!el) return
-  if (!rankingChart) rankingChart = echarts.init(el)
+  if (rankingChart) {
+    rankingChart.dispose()
+  }
+  rankingChart = echarts.init(el)
   rankingChart.setOption({
     ...baseChartOptions(),
     tooltip: { trigger: 'axis' },
@@ -115,15 +130,25 @@ function renderRankingChart(data: { username: string; count: number }[]) {
   })
 }
 
-onMounted(fetchDashboard)
-watch(() => workspaceStore.currentWorkspace, fetchDashboard)
-
-const statusMap: Record<string, { label: string; type: string }> = {
-  draft: { label: '草稿', type: 'info' },
-  pending_review: { label: '待审核', type: 'warning' },
-  approved: { label: '已通过', type: 'success' },
-  rejected: { label: '已驳回', type: 'danger' },
+function handleResize() {
+  trendChart?.resize()
+  modelChart?.resize()
+  rankingChart?.resize()
 }
+
+onMounted(() => {
+  fetchDashboard()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  trendChart?.dispose()
+  modelChart?.dispose()
+  rankingChart?.dispose()
+})
+
+watch(() => workspaceStore.currentWorkspace, fetchDashboard)
 
 const statCards = [
   { key: 'prompt_count', label: 'Prompt 总数', color: 'var(--el-color-primary)' },
@@ -137,8 +162,13 @@ const statCards = [
   <div>
     <h3 class="page-heading">数据看板</h3>
 
-    <el-row :gutter="20" class="stat-row">
-      <el-col v-for="card in statCards" :key="card.key" :span="6">
+    <el-row v-if="firstLoad" :gutter="20" class="stat-row">
+      <el-col v-for="i in 4" :key="i" :xs="12" :sm="12" :md="6" :lg="6">
+        <SkeletonCard />
+      </el-col>
+    </el-row>
+    <el-row v-else :gutter="20" class="stat-row">
+      <el-col v-for="card in statCards" :key="card.key" :xs="12" :sm="12" :md="6" :lg="6">
         <div class="stat-card">
           <div class="stat-value" :style="{ color: card.color }">
             {{ (stats as any)[card.key] }}
@@ -148,14 +178,22 @@ const statCards = [
       </el-col>
     </el-row>
 
-    <el-row :gutter="20" class="chart-row">
-      <el-col :span="16">
+    <el-row v-if="firstLoad" :gutter="20" class="chart-row">
+      <el-col :xs="24" :sm="24" :md="16">
+        <SkeletonChart />
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="8">
+        <SkeletonChart />
+      </el-col>
+    </el-row>
+    <el-row v-else :gutter="20" class="chart-row">
+      <el-col :xs="24" :sm="24" :md="16">
         <div class="chart-card">
           <div class="chart-title">生成趋势</div>
           <div id="trend-chart" class="chart-body"></div>
         </div>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="24" :md="8">
         <div class="chart-card">
           <div class="chart-title">模型占比</div>
           <div id="model-chart" class="chart-body"></div>
@@ -164,13 +202,19 @@ const statCards = [
     </el-row>
 
     <el-row :gutter="20">
-      <el-col :span="12">
+      <el-col v-if="firstLoad" :xs="24" :md="12">
+        <SkeletonChart />
+      </el-col>
+      <el-col v-else :xs="24" :md="12">
         <div class="chart-card">
           <div class="chart-title">用户排名</div>
           <div id="ranking-chart" class="chart-body"></div>
         </div>
       </el-col>
-      <el-col :span="12">
+      <el-col v-if="firstLoad" :xs="24" :md="12">
+        <SkeletonTable />
+      </el-col>
+      <el-col v-else :xs="24" :md="12">
         <div class="chart-card">
           <div class="chart-title">最近记录</div>
           <div class="chart-body" style="padding: 0;">
@@ -239,6 +283,7 @@ const statCards = [
   border-radius: 8px;
   border: 1px solid var(--el-border-color);
   padding: 20px;
+  margin-bottom: 20px;
 }
 
 .chart-title {
