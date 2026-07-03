@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { createPrompt } from '@/api/prompts'
+import { promptCategories } from '@/utils/common'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -16,12 +17,6 @@ const form = ref({
   tags: [] as string[],
   tagInput: '',
 })
-
-const categories = [
-  { label: '营销文案', value: 'marketing' },
-  { label: '技术文档', value: 'tech_doc' },
-  { label: '社交媒体', value: 'social_media' },
-]
 
 function addTag() {
   const tag = form.value.tagInput.trim()
@@ -70,7 +65,7 @@ async function handleSubmit() {
       </el-form-item>
       <el-form-item label="分类">
         <el-select v-model="form.category" placeholder="选择分类" clearable>
-          <el-option v-for="c in categories" :key="c.value" :label="c.label" :value="c.value" />
+          <el-option v-for="c in promptCategories" :key="c.value" :label="c.label" :value="c.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="标签">

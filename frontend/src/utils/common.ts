@@ -13,3 +13,9 @@ export function truncate(text: string, len: number): string {
 export function formatDate(iso: string): string {
   return new Date(iso).toLocaleString()
 }
+
+export const promptCategories = [
+  { label: '营销文案', value: 'marketing' },
+  { label: '技术文档', value: 'tech_doc' },
+  { label: '社交媒体', value: 'social_media' },
+]

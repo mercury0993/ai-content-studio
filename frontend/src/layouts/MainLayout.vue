@@ -83,7 +83,7 @@ function handleWorkspaceChange(id: string) {
     <el-container class="app-main">
       <el-header class="app-header">
         <div class="header-left">
-          <el-icon class="collapse-btn" @click="isCollapse = !isCollapse">
+          <el-icon class="collapse-btn" @click="isCollapse = !isCollapse" aria-label="切换侧边栏" role="button" tabindex="0">
             <Fold v-if="!isCollapse" />
             <Expand v-else />
           </el-icon>
@@ -94,6 +94,7 @@ function handleWorkspaceChange(id: string) {
             placeholder="选择空间"
             size="default"
             class="workspace-switcher"
+            aria-label="切换工作空间"
           >
             <el-option
               v-for="ws in workspaceStore.workspaces"

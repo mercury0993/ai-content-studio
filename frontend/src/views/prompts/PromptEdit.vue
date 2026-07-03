@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getPrompt, updatePrompt } from '@/api/prompts'
+import { promptCategories } from '@/utils/common'
 import { ElMessage } from 'element-plus'
 
 const route = useRoute()
@@ -14,12 +15,6 @@ const form = ref({
   tags: [] as string[],
   tagInput: '',
 })
-
-const categories = [
-  { label: '营销文案', value: 'marketing' },
-  { label: '技术文档', value: 'tech_doc' },
-  { label: '社交媒体', value: 'social_media' },
-]
 
 onMounted(async () => {
   const data: any = await getPrompt(route.params.id as string)
@@ -71,7 +66,7 @@ async function handleSubmit() {
       </el-form-item>
       <el-form-item label="分类">
         <el-select v-model="form.category" clearable>
-          <el-option v-for="c in categories" :key="c.value" :label="c.label" :value="c.value" />
+          <el-option v-for="c in promptCategories" :key="c.value" :label="c.label" :value="c.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="标签">

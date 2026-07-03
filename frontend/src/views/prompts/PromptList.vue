@@ -6,6 +6,7 @@ import { listPrompts, deletePrompt, updatePrompt } from '@/api/prompts'
 import { canEdit } from '@/utils/permission'
 import { useDebouncedWatch } from '@/composables/useDebouncedWatch'
 import SkeletonTable from '@/components/SkeletonTable.vue'
+import { promptCategories } from '@/utils/common'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const workspaceStore = useWorkspaceStore()
@@ -21,9 +22,7 @@ const firstLoad = ref(true)
 
 const categories = [
   { label: '全部', value: '' },
-  { label: '营销文案', value: 'marketing' },
-  { label: '技术文档', value: 'tech_doc' },
-  { label: '社交媒体', value: 'social_media' },
+  ...promptCategories,
 ]
 
 async function fetchPrompts() {

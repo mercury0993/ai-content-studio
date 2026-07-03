@@ -15,6 +15,9 @@ const stats = ref({ prompt_count: 0, content_count: 0, monthly_generated: 0, pen
 const recentItems = ref<any[]>([])
 const firstLoad = ref(true)
 
+const trendChartRef = ref<HTMLElement>()
+const modelChartRef = ref<HTMLElement>()
+const rankingChartRef = ref<HTMLElement>()
 let trendChart: echarts.ECharts | null = null
 let modelChart: echarts.ECharts | null = null
 let rankingChart: echarts.ECharts | null = null
@@ -62,7 +65,7 @@ function baseChartOptions(): any {
 }
 
 function renderTrendChart(data: { date: string; count: number }[]) {
-  const el = document.getElementById('trend-chart')
+  const el = trendChartRef.value
   if (!el) return
   if (trendChart) {
     trendChart.dispose()
@@ -89,7 +92,7 @@ function renderTrendChart(data: { date: string; count: number }[]) {
 }
 
 function renderModelChart(data: { name: string; count: number }[]) {
-  const el = document.getElementById('model-chart')
+  const el = modelChartRef.value
   if (!el) return
   if (modelChart) {
     modelChart.dispose()
@@ -111,7 +114,7 @@ function renderModelChart(data: { name: string; count: number }[]) {
 }
 
 function renderRankingChart(data: { username: string; count: number }[]) {
-  const el = document.getElementById('ranking-chart')
+  const el = rankingChartRef.value
   if (!el) return
   if (rankingChart) {
     rankingChart.dispose()
@@ -197,13 +200,13 @@ const statCards = [
       <el-col :xs="24" :sm="24" :md="16">
         <div class="chart-card">
           <div class="chart-title">生成趋势</div>
-          <div id="trend-chart" class="chart-body"></div>
+          <div ref="trendChartRef" class="chart-body"></div>
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :md="8">
         <div class="chart-card">
           <div class="chart-title">模型占比</div>
-          <div id="model-chart" class="chart-body"></div>
+          <div ref="modelChartRef" class="chart-body"></div>
         </div>
       </el-col>
     </el-row>
@@ -215,7 +218,7 @@ const statCards = [
       <el-col v-else :xs="24" :md="12">
         <div class="chart-card">
           <div class="chart-title">用户排名</div>
-          <div id="ranking-chart" class="chart-body"></div>
+          <div ref="rankingChartRef" class="chart-body"></div>
         </div>
       </el-col>
       <el-col v-if="firstLoad" :xs="24" :md="12">
