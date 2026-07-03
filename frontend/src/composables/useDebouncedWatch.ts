@@ -1,20 +1,21 @@
-import { watch, onUnmounted, type WatchSource, type WatchCallback, type WatchOptions } from 'vue'
+import { watch, onUnmounted } from 'vue'
 
-export function useDebouncedWatch<T>(
-  sources: WatchSource<T> | WatchSource<T>[],
-  callback: WatchCallback<T>,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useDebouncedWatch(
+  sources: any,
+  callback: any,
   delay = 300,
-  options?: WatchOptions,
+  options?: any,
 ) {
   let timer: ReturnType<typeof setTimeout> | null = null
 
   const unwatch = watch(
     sources,
-    (...args: Parameters<WatchCallback<T>>) => {
+    (...args: any[]) => {
       if (timer) clearTimeout(timer)
       timer = setTimeout(() => {
         timer = null
-        ;(callback as any)(...args)
+        callback(...args)
       }, delay)
     },
     options,
