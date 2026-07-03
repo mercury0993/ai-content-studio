@@ -1,3 +1,4 @@
+import re
 import time
 
 from openai import AsyncOpenAI
@@ -6,10 +7,15 @@ from app.core.config import settings
 from app.core.security import decrypt_api_key
 
 
+def sanitize_variable(value: str) -> str:
+    """Strip dangerous characters and limit length to prevent prompt injection."""
+    return re.sub(r'[{}]', '', str(value))[:2000]
+
+
 def build_prompt_text(prompt_content: str, variables: dict | None) -> str:
     text = prompt_content
     for key, value in (variables or {}).items():
-        text = text.replace(f"{{{key}}}", str(value))
+        text = text.replace(f"{{{key}}}", sanitize_variable(value))
     return text
 
 

@@ -1,4 +1,5 @@
 import io
+import re
 import uuid
 import zipfile
 
@@ -22,7 +23,7 @@ async def get_content_for_export(db: AsyncSession, content_id: uuid.UUID) -> tup
 async def get_export_filename(db: AsyncSession, content: Content) -> str:
     prompt_result = await db.execute(select(Prompt).where(Prompt.id == content.prompt_id))
     prompt = prompt_result.scalar_one_or_none()
-    prefix = prompt.title if prompt else "content"
+    prefix = re.sub(r'[\\/:*?"<>|]', '_', prompt.title)[:50] if prompt else "content"
     return f"{prefix}_{str(content.id)[:8]}.md"
 
 
@@ -44,7 +45,8 @@ async def build_zip_response(db: AsyncSession, contents: list[Content]) -> io.By
         for content in contents:
             text = content.edited_text or content.generated_text
             prompt = prompt_map.get(content.prompt_id)
-            filename = f"{prompt.title if prompt else 'content'}_{str(content.id)[:8]}.md"
+            safe_title = re.sub(r'[\\/:*?"<>|]', '_', prompt.title)[:50] if prompt else "content"
+            filename = f"{safe_title}_{str(content.id)[:8]}.md"
             zf.writestr(filename, text)
     zip_buffer.seek(0)
     return zip_buffer

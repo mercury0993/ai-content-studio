@@ -1,16 +1,16 @@
 import uuid
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class WorkspaceCreate(BaseModel):
-    name: str
-    description: str | None = None
+    name: str = Field(..., max_length=100)
+    description: str | None = Field(None, max_length=500)
 
 
 class WorkspaceUpdate(BaseModel):
-    name: str | None = None
-    description: str | None = None
+    name: str | None = Field(None, max_length=100)
+    description: str | None = Field(None, max_length=500)
 
 
 class WorkspaceResponse(BaseModel):

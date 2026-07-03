@@ -1,24 +1,24 @@
 import uuid
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AIModelCreate(BaseModel):
     workspace_id: uuid.UUID
-    name: str
-    provider: str
-    api_key: str | None = None
-    base_url: str | None = None
-    model_name: str
+    name: str = Field(..., max_length=100)
+    provider: str = Field(..., max_length=50)
+    api_key: str | None = Field(None, max_length=500)
+    base_url: str | None = Field(None, max_length=500)
+    model_name: str = Field(..., max_length=100)
     default_params: dict | None = None
 
 
 class AIModelUpdate(BaseModel):
-    name: str | None = None
-    provider: str | None = None
-    api_key: str | None = None
-    base_url: str | None = None
-    model_name: str | None = None
+    name: str | None = Field(None, max_length=100)
+    provider: str | None = Field(None, max_length=50)
+    api_key: str | None = Field(None, max_length=500)
+    base_url: str | None = Field(None, max_length=500)
+    model_name: str | None = Field(None, max_length=100)
     default_params: dict | None = None
 
 

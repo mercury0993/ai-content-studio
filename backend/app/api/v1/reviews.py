@@ -50,6 +50,8 @@ async def submit_for_review(
     member = await workspace_service.check_workspace_access(db, content.workspace_id, current_user.id)
     if not member or member.role.value == "viewer":
         raise HTTPException(status_code=403, detail="Insufficient permissions")
+    if content.created_by != current_user.id and member.role.value != "admin":
+        raise HTTPException(status_code=403, detail="Can only submit your own content")
 
     reviewer_id = req.reviewer_id if req else None
     if reviewer_id:
@@ -70,14 +72,12 @@ async def approve(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.role.value == "viewer":
-        raise HTTPException(status_code=403, detail="Viewers cannot review")
     content = await content_service.get_content(db, content_id)
     if not content:
         raise HTTPException(status_code=404, detail="Content not found")
     member = await workspace_service.check_workspace_access(db, content.workspace_id, current_user.id)
-    if not member:
-        raise HTTPException(status_code=403, detail="Not a member of this workspace")
+    if not member or member.role.value == "viewer":
+        raise HTTPException(status_code=403, detail="Not authorized to review")
     try:
         return await review_service.approve_content(db, content_id, current_user.id, req.comment)
     except ValueError as e:
@@ -91,14 +91,12 @@ async def reject(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.role.value == "viewer":
-        raise HTTPException(status_code=403, detail="Viewers cannot review")
     content = await content_service.get_content(db, content_id)
     if not content:
         raise HTTPException(status_code=404, detail="Content not found")
     member = await workspace_service.check_workspace_access(db, content.workspace_id, current_user.id)
-    if not member:
-        raise HTTPException(status_code=403, detail="Not a member of this workspace")
+    if not member or member.role.value == "viewer":
+        raise HTTPException(status_code=403, detail="Not authorized to review")
     try:
         return await review_service.reject_content(db, content_id, current_user.id, req.comment)
     except ValueError as e:
@@ -111,14 +109,12 @@ async def batch_review(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.role.value == "viewer":
-        raise HTTPException(status_code=403, detail="Viewers cannot review")
     for cid in req.content_ids:
         content = await content_service.get_content(db, cid)
         if not content:
             raise HTTPException(status_code=404, detail=f"Content {cid} not found")
         member = await workspace_service.check_workspace_access(db, content.workspace_id, current_user.id)
-        if not member:
-            raise HTTPException(status_code=403, detail="Not a member of one or more workspaces")
+        if not member or member.role.value == "viewer":
+            raise HTTPException(status_code=403, detail="Not authorized to review")
     count = await review_service.batch_review(db, req.content_ids, req.action, current_user.id, req.comment)
     return {"code": 0, "message": f"Reviewed {count} items", "data": {"count": count}}

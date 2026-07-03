@@ -30,7 +30,7 @@ from app.api.v1.export import router as export_router
 from app.core.logging import setup_logging
 
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-this-password")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 
 @asynccontextmanager
@@ -40,23 +40,26 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
 
     # Seed default admin
-    async with async_session() as db:
-        result = await db.execute(select(User).where(User.email == ADMIN_EMAIL))
-        if not result.scalar_one_or_none():
-            admin = User(
-                username="admin",
-                email=ADMIN_EMAIL,
-                hashed_password=hash_password(ADMIN_PASSWORD),
-                role=UserRole.ADMIN,
-            )
-            db.add(admin)
-            await db.commit()
+    if not ADMIN_PASSWORD:
+        logger.warning("ADMIN_PASSWORD not set — skipping admin user seeding")
+    else:
+        async with async_session() as db:
+            result = await db.execute(select(User).where(User.email == ADMIN_EMAIL))
+            if not result.scalar_one_or_none():
+                admin = User(
+                    username="admin",
+                    email=ADMIN_EMAIL,
+                    hashed_password=hash_password(ADMIN_PASSWORD),
+                    role=UserRole.ADMIN,
+                )
+                db.add(admin)
+                await db.commit()
 
     # Seed default workspace, AI model, and sample prompts
     async with async_session() as db:
         result = await db.execute(select(Workspace).where(Workspace.name == "Default Workspace"))
         if not result.scalar_one_or_none():
-            admin_user_seed = (await db.execute(select(User).where(User.email == "admin@example.com"))).scalar_one()
+            admin_user_seed = (await db.execute(select(User).where(User.email == ADMIN_EMAIL))).scalar_one()
             ws = Workspace(name="Default Workspace", description="默认工作空间", owner_id=admin_user_seed.id)
             db.add(ws)
             await db.flush()

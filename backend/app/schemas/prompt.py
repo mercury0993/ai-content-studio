@@ -1,21 +1,21 @@
 import uuid
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class PromptCreate(BaseModel):
     workspace_id: uuid.UUID
-    title: str
-    content: str
-    category: str | None = None
+    title: str = Field(..., max_length=200)
+    content: str = Field(..., max_length=10000)
+    category: str | None = Field(None, max_length=100)
     tags: list[str] | None = None
     variables: list[dict] | None = None
 
 
 class PromptUpdate(BaseModel):
-    title: str | None = None
-    content: str | None = None
-    category: str | None = None
+    title: str | None = Field(None, max_length=200)
+    content: str | None = Field(None, max_length=10000)
+    category: str | None = Field(None, max_length=100)
     tags: list[str] | None = None
     variables: list[dict] | None = None
     is_favorite: bool | None = None

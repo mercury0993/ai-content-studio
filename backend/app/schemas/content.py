@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ContentGenerate(BaseModel):
@@ -11,7 +11,7 @@ class ContentGenerate(BaseModel):
 
 
 class ContentUpdate(BaseModel):
-    edited_text: str | None = None
+    edited_text: str | None = Field(None, max_length=10000)
 
 
 class ContentResponse(BaseModel):
