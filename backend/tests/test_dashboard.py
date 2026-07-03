@@ -5,7 +5,7 @@ import pytest_asyncio
 @pytest_asyncio.fixture
 async def dashboard_client(client, admin_user):
     resp = await client.post("/api/v1/auth/login", json={
-        "email": "testadmin@example.com", "password": "password123",
+        "email": "testadmin@example.com", "password": "Test@12345",
     })
     token = resp.json()["access_token"]
     ws = await client.post("/api/v1/workspaces", json={"name": "Dashboard-WS"}, headers={"Authorization": f"Bearer {token}"})

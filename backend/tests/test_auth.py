@@ -6,7 +6,7 @@ async def test_register(client):
     resp = await client.post("/api/v1/auth/register", json={
         "username": "newuser",
         "email": "new@example.com",
-        "password": "pass1234",
+        "password": "Test@12345",
     })
     assert resp.status_code == 200
     data = resp.json()
@@ -20,12 +20,12 @@ async def test_register_duplicate(client):
     await client.post("/api/v1/auth/register", json={
         "username": "dup",
         "email": "dup@example.com",
-        "password": "pass1234",
+        "password": "Test@12345",
     })
     resp = await client.post("/api/v1/auth/register", json={
         "username": "dup",
         "email": "dup@example.com",
-        "password": "pass1234",
+        "password": "Test@12345",
     })
     assert resp.status_code == 400
 
@@ -34,7 +34,7 @@ async def test_register_duplicate(client):
 async def test_login_success(client, admin_user):
     resp = await client.post("/api/v1/auth/login", json={
         "email": "testadmin@example.com",
-        "password": "password123",
+        "password": "Test@12345",
     })
     assert resp.status_code == 200
     data = resp.json()
@@ -68,7 +68,7 @@ async def test_me_no_token(client):
 async def test_refresh(client, admin_user):
     login_resp = await client.post("/api/v1/auth/login", json={
         "email": "testadmin@example.com",
-        "password": "password123",
+        "password": "Test@12345",
     })
     refresh_token = login_resp.json()["refresh_token"]
 

@@ -60,7 +60,7 @@ async def admin_user(db):
     user = User(
         username="testadmin",
         email="testadmin@example.com",
-        hashed_password=hash_password("password123"),
+        hashed_password=hash_password("Test@12345"),
         role=UserRole.ADMIN,
     )
     db.add(user)
@@ -70,7 +70,7 @@ async def admin_user(db):
 
 @pytest_asyncio.fixture
 async def admin_token(client, admin_user):
-    resp = await client.post("/api/v1/auth/login", json={"email": "testadmin@example.com", "password": "password123"})
+    resp = await client.post("/api/v1/auth/login", json={"email": "testadmin@example.com", "password": "Test@12345"})
     return resp.json()["access_token"]
 
 
