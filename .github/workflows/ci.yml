@@ -40,7 +40,8 @@ jobs:
       - name: Run tests
         working-directory: backend
         env:
-          SECRET_KEY: ci-test-secret-key
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/ai_content_studio_test
+          SECRET_KEY: ci-test-secret-key-at-least-32-chars-long
           PYTEST_RUNNING: "1"
         run: |
           python -m pytest tests/ -v
