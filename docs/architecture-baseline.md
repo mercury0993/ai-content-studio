@@ -229,3 +229,4 @@ curl http://localhost:8000/api/health
 | 2026-07-02 | v1 | 增量验收（前端导出+登录修复后） | 5 | 1 | 0 | ⚠️ 有条件通过，RegisterRequest 缺少字段长度校验 |
 | 2026-07-03 | v1 | 增量验收（v1.3.0 DeepSeek API） | 5 | 1 | 0 | ⚠️ 有条件通过，contents.py API层含内联SQL查询 |
 | 2026-07-03 | v1 | 警告修复（SQL提取至service层） | 6 | 0 | 0 | ✅ 全部通过，API层零SQL，新增 validate_stream_request 消除跨层泄露 |
+| 2026-07-03 | v1 | 增量验收（性能+安全修复后） | 5 | 0 | 0 | ✅ 全部通过，新增 encrypt_api_key 加密存储，目录责任/分层/封装边界均合规 |
