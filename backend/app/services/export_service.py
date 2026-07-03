@@ -32,12 +32,18 @@ async def get_contents_by_ids(db: AsyncSession, content_ids: list[uuid.UUID]) ->
 
 
 async def build_zip_response(db: AsyncSession, contents: list[Content]) -> io.BytesIO:
+    # Pre-fetch all related prompts in one query to avoid N+1
+    prompt_ids = [c.prompt_id for c in contents]
+    prompt_map: dict[uuid.UUID, Prompt] = {}
+    if prompt_ids:
+        prompt_result = await db.execute(select(Prompt).where(Prompt.id.in_(prompt_ids)))
+        prompt_map = {p.id: p for p in prompt_result.scalars().all()}
+
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         for content in contents:
             text = content.edited_text or content.generated_text
-            prompt_result = await db.execute(select(Prompt).where(Prompt.id == content.prompt_id))
-            prompt = prompt_result.scalar_one_or_none()
+            prompt = prompt_map.get(content.prompt_id)
             filename = f"{prompt.title if prompt else 'content'}_{str(content.id)[:8]}.md"
             zf.writestr(filename, text)
     zip_buffer.seek(0)

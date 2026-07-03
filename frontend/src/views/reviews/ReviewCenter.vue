@@ -52,6 +52,15 @@ onMounted(() => {
 useDebouncedWatch([page, statusFilter], fetchReviews, 300)
 
 async function handleApprove(id: string) {
+  try {
+    await ElMessageBox.confirm('确定通过该内容吗？', '审核确认', {
+      confirmButtonText: '确定通过',
+      cancelButtonText: '取消',
+      type: 'success',
+    })
+  } catch {
+    return // user cancelled
+  }
   await approveContent(id)
   ElMessage.success('已通过')
   await fetchReviews()

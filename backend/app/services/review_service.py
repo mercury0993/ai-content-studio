@@ -97,16 +97,28 @@ async def reject_content(db: AsyncSession, content_id: uuid.UUID, reviewer_id: u
 
 
 async def batch_review(db: AsyncSession, content_ids: list[uuid.UUID], action: str, reviewer_id: uuid.UUID, comment: str | None = None) -> int:
+    # Fetch all contents in one query to avoid N+1
+    result = await db.execute(select(Content).where(Content.id.in_(content_ids)))
+    content_map = {c.id: c for c in result.scalars().all()}
+
     count = 0
     for cid in content_ids:
-        try:
-            if action == "approve":
-                await approve_content(db, cid, reviewer_id, comment)
-            elif action == "reject":
-                await reject_content(db, cid, reviewer_id, comment)
-            count += 1
-        except ValueError:
+        content = content_map.get(cid)
+        if not content:
             continue
+        if content.status != ContentStatus.PENDING_REVIEW:
+            continue
+        if action == "reject" and not comment:
+            continue
+
+        content.status = ContentStatus.APPROVED if action == "approve" else ContentStatus.REJECTED
+        content.reviewed_by = reviewer_id
+        content.review_comment = comment
+        content.reviewed_at = datetime.now(timezone.utc)
+        _log_audit(db, reviewer_id, f"content.{action}", "content", cid, {"comment": comment})
+        count += 1
+
+    await db.flush()
     return count
 
 

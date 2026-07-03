@@ -10,7 +10,7 @@ export function hasPermission(path: string): boolean {
   const userStore = useUserStore()
   if (!userStore.userInfo) return false
   const allowed = roleMenus[userStore.userInfo.role] || []
-  return allowed.some((p) => path.startsWith(p))
+  return allowed.some((p) => path === p || path.startsWith(p + '/'))
 }
 
 export function canEdit(): boolean {

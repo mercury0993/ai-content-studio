@@ -45,8 +45,8 @@ async function handleChangePassword() {
     ElMessage.warning('两次输入的新密码不一致')
     return
   }
-  if (passwordForm.new_password.length < 6) {
-    ElMessage.warning('新密码长度至少 6 位')
+  if (passwordForm.new_password.length < 8) {
+    ElMessage.warning('新密码长度至少 8 位')
     return
   }
   passwordLoading.value = true

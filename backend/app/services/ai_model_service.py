@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.security import encrypt_api_key
 from app.models.ai_model import AIModel
 from app.schemas.ai_model import AIModelCreate, AIModelUpdate
 
@@ -12,7 +13,7 @@ async def create_model(db: AsyncSession, req: AIModelCreate) -> AIModel:
         workspace_id=req.workspace_id,
         name=req.name,
         provider=req.provider,
-        api_key=req.api_key,
+        api_key=encrypt_api_key(req.api_key) if req.api_key else None,
         base_url=req.base_url,
         model_name=req.model_name,
         default_params=req.default_params,
@@ -43,7 +44,7 @@ async def update_model(db: AsyncSession, model_id: uuid.UUID, req: AIModelUpdate
     if req.provider is not None:
         model.provider = req.provider
     if req.api_key is not None:
-        model.api_key = req.api_key
+        model.api_key = encrypt_api_key(req.api_key)
     if req.base_url is not None:
         model.base_url = req.base_url
     if req.model_name is not None:

@@ -7,6 +7,7 @@ import SkeletonCard from '@/components/SkeletonCard.vue'
 import SkeletonChart from '@/components/SkeletonChart.vue'
 import SkeletonTable from '@/components/SkeletonTable.vue'
 import * as echarts from 'echarts'
+import { ElMessage } from 'element-plus'
 
 const workspaceStore = useWorkspaceStore()
 
@@ -22,22 +23,28 @@ async function fetchDashboard() {
   if (!workspaceStore.currentWorkspace) return
   const wsId = workspaceStore.currentWorkspace.id
 
-  const [statsData, trendData, modelData, rankingData, recentData]: any[] = await Promise.all([
-    getStats(wsId),
-    getTrend(wsId),
-    getModelUsage(wsId),
-    getUserRanking(wsId),
-    getRecent(wsId),
-  ])
+  try {
+    const [statsData, trendData, modelData, rankingData, recentData]: any[] = await Promise.all([
+      getStats(wsId),
+      getTrend(wsId),
+      getModelUsage(wsId),
+      getUserRanking(wsId),
+      getRecent(wsId),
+    ])
 
-  stats.value = statsData.data
-  recentItems.value = recentData.data
-  firstLoad.value = false
+    stats.value = statsData.data
+    recentItems.value = recentData.data
+    firstLoad.value = false
 
-  await nextTick()
-  renderTrendChart(trendData.data)
-  renderModelChart(modelData.data)
-  renderRankingChart(rankingData.data)
+    await nextTick()
+    renderTrendChart(trendData.data)
+    renderModelChart(modelData.data)
+    renderRankingChart(rankingData.data)
+  } catch (e) {
+    console.error('Dashboard load failed:', e)
+    ElMessage.error('数据加载失败，请刷新重试')
+    firstLoad.value = false
+  }
 }
 
 const chartColors = {

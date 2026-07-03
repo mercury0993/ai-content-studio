@@ -3,14 +3,24 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useWorkspaceStore } from '@/stores/workspace'
+import { ElMessageBox } from 'element-plus'
 
 const userStore = useUserStore()
 const workspaceStore = useWorkspaceStore()
 const router = useRouter()
 const isCollapse = ref(false)
 
-function handleCommand(command: string) {
+async function handleCommand(command: string) {
   if (command === 'logout') {
+    try {
+      await ElMessageBox.confirm('确定要退出登录吗？', '退出确认', {
+        confirmButtonText: '退出',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+    } catch {
+      return // user cancelled
+    }
     userStore.logout()
   } else if (command === 'settings') {
     router.push('/settings')

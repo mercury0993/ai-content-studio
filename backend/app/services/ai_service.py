@@ -3,6 +3,7 @@ import time
 from openai import AsyncOpenAI
 
 from app.core.config import settings
+from app.core.security import decrypt_api_key
 
 
 def build_prompt_text(prompt_content: str, variables: dict | None) -> str:
@@ -14,7 +15,7 @@ def build_prompt_text(prompt_content: str, variables: dict | None) -> str:
 
 async def deepseek_generate(prompt_text: str, model) -> dict:
     """Non-streaming generation. Returns dict with generated_text, token_usage, generation_time_ms."""
-    api_key = model.api_key or settings.DEEPSEEK_API_KEY
+    api_key = decrypt_api_key(model.api_key or "") or settings.DEEPSEEK_API_KEY
     if not api_key:
         raise ValueError("未配置 DeepSeek API Key，请在模型配置或环境变量中设置")
 
@@ -43,7 +44,7 @@ async def deepseek_generate(prompt_text: str, model) -> dict:
 
 async def deepseek_generate_stream(prompt_text: str, model):
     """Streaming generation. Yields text chunks as they arrive."""
-    api_key = model.api_key or settings.DEEPSEEK_API_KEY
+    api_key = decrypt_api_key(model.api_key or "") or settings.DEEPSEEK_API_KEY
     if not api_key:
         raise ValueError("未配置 DeepSeek API Key，请在模型配置或环境变量中设置")
 

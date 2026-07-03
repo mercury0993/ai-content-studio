@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select, func, cast, Date
+from sqlalchemy import select, func, cast, Date, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.content import Content, ContentStatus
@@ -11,35 +11,28 @@ from app.models.user import User
 
 
 async def get_stats(db: AsyncSession, workspace_id: uuid.UUID) -> dict:
+    now = datetime.now(timezone.utc)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    # Merge 3 Content COUNT queries into 1 using conditional aggregation
+    content_result = await db.execute(
+        select(
+            func.count(Content.id).label("content_count"),
+            func.count(case((Content.status == ContentStatus.PENDING_REVIEW, 1))).label("pending_review"),
+            func.count(case((Content.created_at >= month_start, 1))).label("monthly_generated"),
+        ).where(Content.workspace_id == workspace_id)
+    )
+    content_row = content_result.one()
+
     prompt_count = (await db.execute(
         select(func.count()).where(Prompt.workspace_id == workspace_id)
     )).scalar()
 
-    content_count = (await db.execute(
-        select(func.count()).where(Content.workspace_id == workspace_id)
-    )).scalar()
-
-    now = datetime.now(timezone.utc)
-    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    monthly_generated = (await db.execute(
-        select(func.count()).where(
-            Content.workspace_id == workspace_id,
-            Content.created_at >= month_start,
-        )
-    )).scalar()
-
-    pending_review = (await db.execute(
-        select(func.count()).where(
-            Content.workspace_id == workspace_id,
-            Content.status == ContentStatus.PENDING_REVIEW,
-        )
-    )).scalar()
-
     return {
         "prompt_count": prompt_count,
-        "content_count": content_count,
-        "monthly_generated": monthly_generated,
-        "pending_review": pending_review,
+        "content_count": content_row.content_count,
+        "monthly_generated": content_row.monthly_generated,
+        "pending_review": content_row.pending_review,
     }
 
 

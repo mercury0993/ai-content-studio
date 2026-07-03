@@ -1,7 +1,10 @@
+import os
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -11,6 +14,16 @@ from app.schemas.content import ContentGenerate, ContentUpdate, ContentResponse
 from app.services import content_service, workspace_service
 
 router = APIRouter(prefix="/contents", tags=["contents"])
+
+limiter = Limiter(key_func=get_remote_address)
+_is_test = os.getenv("PYTEST_RUNNING", "0") == "1"
+
+
+def _limit(rate: str):
+    """Apply rate limit decorator; skip in test mode."""
+    if _is_test:
+        return lambda f: f
+    return limiter.limit(rate)
 
 
 @router.get("", response_model=dict)
@@ -38,8 +51,10 @@ async def list_contents(
 
 
 @router.post("/generate", response_model=ContentResponse)
+@_limit("5/minute")
 async def generate_content(
     req: ContentGenerate,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -53,8 +68,10 @@ async def generate_content(
 
 
 @router.post("/generate-stream")
+@_limit("5/minute")
 async def generate_content_stream(
     req: ContentGenerate,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
