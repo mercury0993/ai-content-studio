@@ -256,7 +256,7 @@ const statCards = [
 
 <style scoped>
 .stat-row {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-xl);
 }
 
 .stat-card {
@@ -286,7 +286,7 @@ const statCards = [
 }
 
 .chart-row {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-2xl);
 }
 
 .chart-card {

@@ -59,6 +59,16 @@
   --header-height: 56px;
   --sidebar-width: 220px;
   --sidebar-collapsed: 64px;
+
+  /* === Spacing Scale (4pt base) === */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
 }
 
 /* === Page Heading === */

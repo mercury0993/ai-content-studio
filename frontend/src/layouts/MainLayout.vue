@@ -53,21 +53,24 @@ function handleWorkspaceChange(id: string) {
           <el-icon><DataBoard /></el-icon>
           <template #title>数据看板</template>
         </el-menu-item>
-        <el-menu-item index="/workspaces">
-          <el-icon><Folder /></el-icon>
-          <template #title>工作空间</template>
+        <el-menu-item index="/contents">
+          <el-icon><EditPen /></el-icon>
+          <template #title>内容管理</template>
         </el-menu-item>
         <el-menu-item index="/prompts">
           <el-icon><Document /></el-icon>
           <template #title>Prompt 管理</template>
         </el-menu-item>
-        <el-menu-item index="/contents">
-          <el-icon><EditPen /></el-icon>
-          <template #title>内容管理</template>
-        </el-menu-item>
         <el-menu-item index="/reviews">
           <el-icon><Checked /></el-icon>
           <template #title>审核中心</template>
+        </el-menu-item>
+
+        <li class="sidebar-divider" role="separator" aria-label="管理与设置"></li>
+
+        <el-menu-item index="/workspaces">
+          <el-icon><Folder /></el-icon>
+          <template #title>工作空间</template>
         </el-menu-item>
         <el-menu-item index="/models">
           <el-icon><Cpu /></el-icon>
@@ -256,6 +259,13 @@ function handleWorkspaceChange(id: string) {
 .user-name {
   font-size: 14px;
   color: var(--el-text-color-primary);
+}
+
+.sidebar-divider {
+  height: 1px;
+  margin: 8px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  list-style: none;
 }
 
 .app-content {
