@@ -55,6 +55,8 @@ const chartColors = {
   success: '#16a34a',
   warning: '#d97706',
   danger: '#dc2626',
+  accent: '#c2682b',
+  palette: ['#4f5dd5', '#16a34a', '#d97706', '#dc2626', '#6b7280', '#c2682b'],
 }
 
 function baseChartOptions(): any {
@@ -101,7 +103,7 @@ function renderModelChart(data: { name: string; count: number }[]) {
   modelChart.setOption({
     ...baseChartOptions(),
     tooltip: { trigger: 'item' },
-    color: ['#4f5dd5', '#16a34a', '#d97706', '#dc2626', '#6b7280', '#8b5cf6'],
+    color: chartColors.palette,
     series: [{
       type: 'pie',
       radius: ['50%', '75%'],
@@ -161,10 +163,10 @@ onUnmounted(() => {
 watch(() => workspaceStore.currentWorkspace, fetchDashboard)
 
 const statCards = [
-  { key: 'prompt_count', label: 'Prompt 总数', color: 'var(--el-color-primary)' },
-  { key: 'content_count', label: '内容总数', color: 'var(--el-color-success)' },
-  { key: 'monthly_generated', label: '本月生成', color: 'var(--el-color-warning)' },
-  { key: 'pending_review', label: '待审核', color: 'var(--el-color-danger)' },
+  { key: 'prompt_count', label: 'Prompt 总数', color: 'var(--el-color-primary)', bg: 'var(--el-color-primary-light-9)' },
+  { key: 'content_count', label: '内容总数', color: 'var(--el-color-success)', bg: 'oklch(92% 0.04 145)' },
+  { key: 'monthly_generated', label: '本月生成', color: 'var(--el-color-warning)', bg: 'oklch(93% 0.04 72)' },
+  { key: 'pending_review', label: '待审核', color: 'var(--el-color-danger)', bg: 'oklch(92% 0.04 22)' },
 ]
 </script>
 
@@ -179,7 +181,7 @@ const statCards = [
     </el-row>
     <el-row v-else :gutter="20" class="stat-row">
       <el-col v-for="card in statCards" :key="card.key" :xs="12" :sm="12" :md="6" :lg="6">
-        <div class="stat-card">
+        <div class="stat-card" :style="{ background: card.bg }">
           <div class="stat-value" :style="{ color: card.color }">
             {{ (stats as any)[card.key] }}
           </div>
@@ -258,7 +260,6 @@ const statCards = [
 }
 
 .stat-card {
-  background: #fff;
   border-radius: 8px;
   padding: 24px;
   border: 1px solid var(--el-border-color);

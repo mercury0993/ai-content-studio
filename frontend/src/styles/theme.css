@@ -1,40 +1,44 @@
-/* AI Content Studio — Enterprise Design System */
+/* AI Content Studio — Bolder Brand System */
 
 :root {
-  /* === Primary Brand === */
-  --el-color-primary: #4f5dd5;
-  --el-color-primary-light-3: #737fe0;
-  --el-color-primary-light-5: #919ae7;
-  --el-color-primary-light-7: #b3b9ef;
-  --el-color-primary-light-8: #ccd0f5;
-  --el-color-primary-light-9: #e6e8fb;
-  --el-color-primary-dark-2: #3f4aaa;
+  /* === Primary Brand — Deep Indigo === */
+  --el-color-primary: oklch(48% 0.22 278);
+  --el-color-primary-light-3: oklch(56% 0.18 278);
+  --el-color-primary-light-5: oklch(64% 0.14 278);
+  --el-color-primary-light-7: oklch(76% 0.08 278);
+  --el-color-primary-light-8: oklch(84% 0.04 278);
+  --el-color-primary-light-9: oklch(92% 0.02 278);
+  --el-color-primary-dark-2: oklch(40% 0.20 278);
+
+  /* === Accent — Warm Copper === */
+  --color-accent: oklch(60% 0.16 55);
+  --color-accent-light: oklch(80% 0.08 55);
 
   /* === Semantic Colors === */
-  --el-color-success: #16a34a;
-  --el-color-warning: #d97706;
-  --el-color-danger: #dc2626;
-  --el-color-info: #6b7280;
+  --el-color-success: oklch(54% 0.17 145);
+  --el-color-warning: oklch(62% 0.17 72);
+  --el-color-danger: oklch(48% 0.21 22);
+  --el-color-info: oklch(58% 0.08 255);
 
   /* === Typography === */
   --el-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --el-font-size-base: 14px;
 
   /* === Backgrounds === */
-  --el-bg-color: #ffffff;
-  --el-bg-color-page: #f5f5f7;
-  --el-bg-color-overlay: #ffffff;
+  --el-bg-color: oklch(1.00 0.000 0);
+  --el-bg-color-page: oklch(97.2% 0.003 278);
+  --el-bg-color-overlay: oklch(1.00 0.000 0);
 
   /* === Text === */
-  --el-text-color-primary: #1f2937;
-  --el-text-color-regular: #374151;
-  --el-text-color-secondary: #6b7280;
-  --el-text-color-placeholder: #9ca3af;
+  --el-text-color-primary: oklch(20% 0.01 278);
+  --el-text-color-regular: oklch(36% 0.008 278);
+  --el-text-color-secondary: oklch(52% 0.005 278);
+  --el-text-color-placeholder: oklch(68% 0.003 278);
 
   /* === Border === */
-  --el-border-color: #e5e7eb;
-  --el-border-color-light: #f3f4f6;
-  --el-border-color-lighter: #f9fafb;
+  --el-border-color: oklch(88% 0.005 278);
+  --el-border-color-light: oklch(94% 0.003 278);
+  --el-border-color-lighter: oklch(97% 0.002 278);
   --el-border-radius-base: 6px;
   --el-border-radius-small: 4px;
   --el-border-radius-round: 20px;
@@ -44,12 +48,12 @@
   --el-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --el-box-shadow-dark: 0 8px 24px rgba(0, 0, 0, 0.12);
 
-  /* === Sidebar === */
-  --sidebar-bg: #1a1c24;
-  --sidebar-text: #9ca3af;
-  --sidebar-active-text: #e5e7eb;
-  --sidebar-active-bg: rgba(255, 255, 255, 0.08);
-  --sidebar-hover-bg: rgba(255, 255, 255, 0.04);
+  /* === Sidebar — Brand-Tinted Deep === */
+  --sidebar-bg: oklch(17% 0.05 278);
+  --sidebar-text: oklch(68% 0.01 278);
+  --sidebar-active-text: oklch(95% 0.002 278);
+  --sidebar-active-bg: oklch(32% 0.10 278);
+  --sidebar-hover-bg: oklch(25% 0.05 278);
 
   /* === Layout === */
   --header-height: 56px;
@@ -164,4 +168,14 @@
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* === Bolder: Accent links === */
+a, .el-link {
+  color: var(--color-accent);
+}
+
+/* === Bolder: Active menu item glow === */
+.el-menu-item.is-active {
+  box-shadow: inset 3px 0 0 var(--el-color-primary);
 }
