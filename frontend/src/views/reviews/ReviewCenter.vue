@@ -44,7 +44,7 @@ async function fetchReviews() {
 
 async function fetchMembers() {
   if (!workspaceStore.currentWorkspace) return
-  members.value = (await listMembers(workspaceStore.currentWorkspace.id)).data
+  members.value = await listMembers(workspaceStore.currentWorkspace.id)
 }
 
 onMounted(() => {

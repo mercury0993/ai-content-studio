@@ -7,8 +7,8 @@ export function listPrompts(params: {
   search?: string
   page?: number
   page_size?: number
-}) {
-  return request.get<ApiResponse<PaginatedResponse<PromptItem>>>('/prompts', { params })
+}): Promise<ApiResponse<PaginatedResponse<PromptItem>>> {
+  return request.get('/prompts', { params })
 }
 
 export function createPrompt(data: {
@@ -17,12 +17,12 @@ export function createPrompt(data: {
   content: string
   category?: string
   tags?: string[]
-}) {
-  return request.post<PromptItem>('/prompts', data)
+}): Promise<PromptItem> {
+  return request.post('/prompts', data)
 }
 
-export function getPrompt(id: string) {
-  return request.get<PromptItem>(`/prompts/${id}`)
+export function getPrompt(id: string): Promise<PromptItem> {
+  return request.get(`/prompts/${id}`)
 }
 
 export function updatePrompt(id: string, data: {
@@ -31,18 +31,18 @@ export function updatePrompt(id: string, data: {
   category?: string
   tags?: string[]
   is_favorite?: boolean
-}) {
-  return request.put<PromptItem>(`/prompts/${id}`, data)
+}): Promise<PromptItem> {
+  return request.put(`/prompts/${id}`, data)
 }
 
-export function deletePrompt(id: string) {
+export function deletePrompt(id: string): Promise<void> {
   return request.delete(`/prompts/${id}`)
 }
 
-export function listVersions(promptId: string) {
-  return request.get<PromptVersionItem[]>(`/prompts/${promptId}/versions`)
+export function listVersions(promptId: string): Promise<PromptVersionItem[]> {
+  return request.get(`/prompts/${promptId}/versions`)
 }
 
-export function rollbackVersion(promptId: string, version: number) {
+export function rollbackVersion(promptId: string, version: number): Promise<void> {
   return request.post(`/prompts/${promptId}/rollback/${version}`)
 }

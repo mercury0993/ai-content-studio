@@ -6,8 +6,8 @@ export function listContents(params: {
   status?: string
   page?: number
   page_size?: number
-}) {
-  return request.get<ApiResponse<PaginatedResponse<ContentItem>>>('/contents', { params })
+}): Promise<ApiResponse<PaginatedResponse<ContentItem>>> {
+  return request.get('/contents', { params })
 }
 
 export function generateContent(data: {
@@ -15,8 +15,8 @@ export function generateContent(data: {
   prompt_id: string
   model_id: string
   variables?: Record<string, string>
-}) {
-  return request.post<ContentItem>('/contents/generate', data)
+}): Promise<ContentItem> {
+  return request.post('/contents/generate', data)
 }
 
 function parseSSE(buffer: string): { events: { event: string; data: string }[]; remainder: string } {
@@ -98,14 +98,14 @@ export async function generateContentStream(
   }
 }
 
-export function getContent(id: string) {
-  return request.get<ContentItem>(`/contents/${id}`)
+export function getContent(id: string): Promise<ContentItem> {
+  return request.get(`/contents/${id}`)
 }
 
-export function updateContent(id: string, data: { edited_text?: string }) {
-  return request.put<ContentItem>(`/contents/${id}`, data)
+export function updateContent(id: string, data: { edited_text?: string }): Promise<ContentItem> {
+  return request.put(`/contents/${id}`, data)
 }
 
-export function deleteContent(id: string) {
+export function deleteContent(id: string): Promise<void> {
   return request.delete(`/contents/${id}`)
 }

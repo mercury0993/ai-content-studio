@@ -53,7 +53,7 @@ async function fetchModels() {
   }
   loading.value = true
   try {
-    models.value = (await listModels(workspaceStore.currentWorkspace.id)).data
+    models.value = await listModels(workspaceStore.currentWorkspace.id)
     firstLoad.value = false
   } finally {
     loading.value = false

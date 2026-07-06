@@ -26,8 +26,8 @@ const submitting = ref(false)
 onMounted(async () => {
   if (!workspaceStore.currentWorkspace) return
   const promptRes = await listPrompts({ workspace_id: workspaceStore.currentWorkspace.id, page_size: 100 })
-  prompts.value = promptRes.data.data.items
-  models.value = (await listModels(workspaceStore.currentWorkspace.id)).data
+  prompts.value = promptRes.data.items
+  models.value = await listModels(workspaceStore.currentWorkspace.id)
 })
 
 function onPromptChange() {

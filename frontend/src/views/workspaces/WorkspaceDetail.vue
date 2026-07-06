@@ -13,8 +13,8 @@ const newMember = ref({ user_id: '', role: 'viewer' })
 
 onMounted(async () => {
   const id = route.params.id as string
-  workspace.value = (await getWorkspace(id)).data
-  members.value = (await listMembers(id)).data
+  workspace.value = (await getWorkspace(id))
+  members.value = (await listMembers(id))
 })
 
 async function handleAddMember() {
@@ -26,7 +26,7 @@ async function handleAddMember() {
     await addMember(route.params.id as string, newMember.value)
     ElMessage.success('添加成功')
     showAddMember.value = false
-    members.value = (await listMembers(route.params.id as string)).data
+    members.value = (await listMembers(route.params.id as string))
   } catch {
     ElMessage.error('操作失败，请重试')
   }
@@ -36,7 +36,7 @@ async function handleRemoveMember(userId: string) {
   await ElMessageBox.confirm('确定移除该成员？', '提示', { type: 'warning' })
   await removeMember(route.params.id as string, userId)
   ElMessage.success('已移除')
-  members.value = (await listMembers(route.params.id as string)).data
+  members.value = (await listMembers(route.params.id as string))
 }
 </script>
 

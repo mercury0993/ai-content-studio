@@ -10,7 +10,7 @@ const router = useRouter()
 const versions = ref<PromptVersionItem[]>([])
 
 onMounted(async () => {
-  versions.value = (await listVersions(route.params.id as string)).data
+  versions.value = await listVersions(route.params.id as string)
 })
 
 async function handleRollback(version: number) {
