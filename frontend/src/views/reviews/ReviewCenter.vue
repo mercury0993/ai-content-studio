@@ -67,9 +67,13 @@ async function handleApprove(id: string) {
   } catch {
     return // user cancelled
   }
-  await approveContent(id)
-  ElMessage.success('已通过')
-  await fetchReviews()
+  try {
+    await approveContent(id)
+    ElMessage.success('已通过')
+    await fetchReviews()
+  } catch {
+    // error already shown by axios interceptor
+  }
 }
 
 function openReject(id: string) {
@@ -82,10 +86,14 @@ async function handleReject() {
     ElMessage.warning('请填写驳回理由')
     return
   }
-  await rejectContent(rejectForm.value.content_id, rejectForm.value.comment)
-  ElMessage.success('已驳回')
-  showRejectDialog.value = false
-  await fetchReviews()
+  try {
+    await rejectContent(rejectForm.value.content_id, rejectForm.value.comment)
+    ElMessage.success('已驳回')
+    showRejectDialog.value = false
+    await fetchReviews()
+  } catch {
+    // error already shown by axios interceptor
+  }
 }
 
 function openSubmit(id: string) {
@@ -98,10 +106,14 @@ async function handleSubmitForReview() {
     ElMessage.warning('请选择审核人')
     return
   }
-  await submitForReview(submitForm.value.content_id, submitForm.value.reviewer_id)
-  ElMessage.success('已提交审核')
-  showSubmitDialog.value = false
-  await fetchReviews()
+  try {
+    await submitForReview(submitForm.value.content_id, submitForm.value.reviewer_id)
+    ElMessage.success('已提交审核')
+    showSubmitDialog.value = false
+    await fetchReviews()
+  } catch {
+    // error already shown by axios interceptor
+  }
 }
 
 async function handleBatch(action: string) {
@@ -109,15 +121,21 @@ async function handleBatch(action: string) {
     ElMessage.warning('请选择要审核的内容')
     return
   }
-  if (action === 'reject') {
-    const { value } = await ElMessageBox.prompt('请输入驳回理由', '批量驳回', { inputType: 'textarea' })
-    await batchReview(selectedIds.value, 'reject', value)
-  } else {
-    await batchReview(selectedIds.value, 'approve')
+  try {
+    if (action === 'reject') {
+      const { value } = await ElMessageBox.prompt('请输入驳回理由', '批量驳回', { inputType: 'textarea' })
+      await batchReview(selectedIds.value, 'reject', value)
+    } else {
+      await batchReview(selectedIds.value, 'approve')
+    }
+    ElMessage.success('批量操作成功')
+    selectedIds.value = []
+    await fetchReviews()
+  } catch (e) {
+    if (e !== 'cancel' && e !== 'close') {
+      // error already shown by axios interceptor
+    }
   }
-  ElMessage.success('批量操作成功')
-  selectedIds.value = []
-  await fetchReviews()
 }
 
 function handleSelectionChange(rows: any[]) {

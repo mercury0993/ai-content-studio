@@ -28,7 +28,7 @@ const form = ref({
   base_url: 'https://api.deepseek.com',
   model_name: 'deepseek-chat',
   temperature: 0.7,
-  max_tokens: 2000,
+  max_tokens: 4096,
 })
 
 const providers = [
@@ -197,7 +197,7 @@ async function handleDelete(id: string) {
           <el-input-number v-model="form.temperature" :min="0" :max="2" :step="0.1" />
         </el-form-item>
         <el-form-item label="Max Tokens">
-          <el-input-number v-model="form.max_tokens" :min="100" :max="8000" :step="100" />
+          <el-input-number v-model="form.max_tokens" :min="100" :max="65536" :step="100" />
         </el-form-item>
       </el-form>
       <template #footer>
