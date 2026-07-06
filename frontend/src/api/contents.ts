@@ -26,17 +26,20 @@ function parseSSE(buffer: string): { events: { event: string; data: string }[]; 
 
   let currentEvent = ''
   let currentData = ''
+  let hasData = false
 
   for (const line of lines) {
     if (line.startsWith('event: ')) {
       currentEvent = line.slice(7)
     } else if (line.startsWith('data: ')) {
-      currentData += (currentData ? '\n' : '') + line.slice(6)
+      currentData += (hasData ? '\n' : '') + line.slice(6)
+      hasData = true
     } else if (line === '') {
-      if (currentData) {
+      if (hasData || currentEvent) {
         events.push({ event: currentEvent || 'message', data: currentData })
         currentEvent = ''
         currentData = ''
+        hasData = false
       }
     }
   }

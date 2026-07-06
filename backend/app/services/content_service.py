@@ -57,7 +57,9 @@ async def validate_stream_request(db: AsyncSession, req: ContentGenerate) -> Non
 
 def _sse_error(message: str) -> str:
     """Format an error as an SSE event so the frontend can display it."""
-    safe = str(message).replace("\n", " ").replace('"', "'")
+    safe = str(message or "未知错误").replace("\n", " ").replace('"', "'")
+    if not safe.strip():
+        safe = "未知错误"
     return f"event: error\ndata: {safe}\n\n"
 
 

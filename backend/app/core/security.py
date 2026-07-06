@@ -2,7 +2,7 @@ import hashlib
 import base64
 from datetime import datetime, timedelta, timezone
 
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
@@ -22,7 +22,10 @@ def encrypt_api_key(plain: str) -> str:
 def decrypt_api_key(encrypted: str) -> str:
     if not encrypted:
         return encrypted
-    return _get_fernet().decrypt(encrypted.encode()).decode()
+    try:
+        return _get_fernet().decrypt(encrypted.encode()).decode()
+    except InvalidToken:
+        return encrypted
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
