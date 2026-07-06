@@ -4,9 +4,9 @@
 
 AI 内容工坊后台管理系统，基于 Prompt 模板的 AI 内容生成、审核、管理平台。
 
-**当前状态：** v1.3.0，`docker compose up -d` 一键启动。已接入 DeepSeek API，支持真实 AI 生成 + SSE 流式输出。
+**当前状态：** v1.4.0，`docker compose up -d` 一键启动。已完成前端设计全面升级，OKLCH 品牌色彩系统、动效系统、新手引导、TypeScript 类型安全。
 
-**安全状态：** Git 历史已清理，无硬编码密码/密钥。所有敏感配置通过 `.env` 环境变量管理。CORS 已限制，API 已加速率限制。
+**安全状态：** Git 历史已清理，无硬编码密码/密钥。所有敏感配置通过 `.env` 环境变量管理。CORS 已限制，API 已加速率限制。前端 0 处 XSS 漏洞。
 
 ## 功能完成度
 
@@ -31,6 +31,30 @@ AI 内容工坊后台管理系统，基于 Prompt 模板的 AI 内容生成、�
 | CI/CD | GitHub Actions 自动测试/构建 | — | ✅ 完成 |
 | 单元测试 | 6 个测试文件覆盖全部 API 模块 | — | ✅ 完成 |
 | Alembic 迁移 | 全部 7 张表的完整迁移 | — | ✅ 完成 |
+| 前端设计系统 | OKLCH 色彩 + 动效 + 空状态引导 + 键盘快捷键 | 全部页面 | ✅ 完成 |
+| TypeScript 类型安全 | API 全部 12 个接口类型定义，0 处 as any | 全部视图 | ✅ 完成 |
+
+## v1.4.0 更新内容
+
+### 设计系统
+- **品牌色重塑**：OKLCH 色彩系统，主色深靛蓝 + 暖铜点缀，侧栏品牌色调，统计卡片语义色背景
+- **信息架构**：侧栏 7 项分两组（工作流 4 + 管理 3），4pt 间距 scale，Dashboard 区块节奏差异化
+- **动效系统**：3 条缓动曲线，路由淡入淡出，按钮微交互，统计卡片交错入场，reduced-motion 支持
+
+### 用户体验
+- **新手引导**：Dashboard 空状态三步引导卡片，ContentList/PromptList 空状态 CTA 按钮
+- **键盘快捷键**：ReviewCenter Ctrl+Shift+A 批量通过 / Ctrl+Shift+R 批量驳回
+- **错误处理**：6 处空 catch 修复为可读错误提示
+
+### 代码质量
+- **类型安全**：新增 `api/types.ts`（12 个接口），全部 API 函数显式返回类型，`as any` 清零
+- **排版系统**：5 级类型量表 + 行高/字重 token，数据表 tabular-nums，正文 16px
+- **SSE 标准化**：流式传输从魔术字符串升级为标准 `text/event-stream` 协议
+
+### 问题修复
+- GET 请求不再自动 commit 数据库事务
+- 权限检查改为精确路径匹配
+- Docker 前端构建已更新
 
 ## 技术栈
 
@@ -122,5 +146,5 @@ ai-content-studio/
 - 仓库：https://github.com/mercury0993/ai-content-studio
 - 分支：`feature/ai-content-studio`
 - 所有代码已提交，敏感信息已排除且历史已清理
-- 最新版本：v1.3.0（DeepSeek API 接入 + SSE 真流式 + 审核优化 + Bug 修复）
+- 最新版本：v1.4.0（前端设计全面升级 + 类型安全 + 新手引导 + Bug 修复）
 - [GitHub Releases](https://github.com/mercury0993/ai-content-studio/releases)
