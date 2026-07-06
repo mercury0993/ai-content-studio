@@ -18,16 +18,30 @@ const selectedPrompt = ref<string | null>(null)
 const selectedModelId = ref('')
 const variables = ref<Record<string, string>>({})
 const generating = ref(false)
+const generationStatus = ref('')
 const resultText = ref('')
 const showResult = ref(false)
 const generatedContentId = ref('')
 const submitting = ref(false)
 
 onMounted(async () => {
-  if (!workspaceStore.currentWorkspace) return
-  const promptRes = await listPrompts({ workspace_id: workspaceStore.currentWorkspace.id, page_size: 100 })
-  prompts.value = promptRes.data.items
-  models.value = await listModels(workspaceStore.currentWorkspace.id)
+  if (!workspaceStore.currentWorkspace) {
+    console.warn('ContentCreate: workspace is null, skipping data load')
+    return
+  }
+  try {
+    const promptRes = await listPrompts({ workspace_id: workspaceStore.currentWorkspace.id, page_size: 100 })
+    prompts.value = promptRes.data.items
+    console.log('ContentCreate: loaded', prompts.value.length, 'prompts')
+  } catch (e) {
+    console.error('ContentCreate: failed to load prompts', e)
+  }
+  try {
+    models.value = await listModels(workspaceStore.currentWorkspace.id)
+    console.log('ContentCreate: loaded', models.value.length, 'models')
+  } catch (e) {
+    console.error('ContentCreate: failed to load models', e)
+  }
 })
 
 function onPromptChange() {
@@ -41,6 +55,11 @@ function onPromptChange() {
 }
 
 async function handleGenerate() {
+  console.log('handleGenerate: clicked')
+  console.log('  selectedPrompt:', selectedPrompt.value)
+  console.log('  selectedModelId:', selectedModelId.value)
+  console.log('  workspace:', workspaceStore.currentWorkspace?.id)
+
   if (!selectedPrompt.value || !selectedModelId.value) {
     ElMessage.warning('请选择 Prompt 和模型')
     return
@@ -62,6 +81,9 @@ async function handleGenerate() {
   showResult.value = true
   resultText.value = ''
   generatedContentId.value = ''
+  generationStatus.value = '正在连接服务...'
+
+  console.log('handleGenerate: calling generateContentStream')
 
   await generateContentStream(
     {
@@ -71,16 +93,24 @@ async function handleGenerate() {
       variables: variables.value,
     },
     (chunk: string) => {
+      if (!resultText.value) {
+        generationStatus.value = '正在生成内容...'
+      }
       resultText.value += chunk
     },
     (contentId: string) => {
+      console.log('handleGenerate: done, contentId:', contentId)
+      if (contentId) {
+        generationStatus.value = '生成完成'
+      }
       generatedContentId.value = contentId
       generating.value = false
     },
     (error: string) => {
+      console.error('handleGenerate: error:', error)
+      generationStatus.value = ''
       ElMessage.error(error)
       generating.value = false
-      showResult.value = false
     },
   )
 }
@@ -134,12 +164,20 @@ function handleCopy() {
     <div v-if="showResult" class="result-area">
       <div class="result-header">
         <h4>生成结果</h4>
+        <span v-if="generating" class="generating-status">{{ generationStatus }}</span>
         <div class="result-actions">
           <el-button size="small" type="success" @click="handleSubmitReview" :disabled="generating || !generatedContentId" :loading="submitting">提交审核</el-button>
           <el-button size="small" @click="handleCopy" :disabled="generating">复制</el-button>
         </div>
       </div>
-      <el-input type="textarea" :model-value="resultText" :rows="15" readonly class="content-text" />
+      <el-input
+        type="textarea"
+        :model-value="resultText"
+        :rows="15"
+        readonly
+        class="content-text"
+        :placeholder="generating ? generationStatus : ''"
+      />
     </div>
   </div>
 </template>
@@ -165,5 +203,12 @@ function handleCopy() {
 .result-actions {
   display: flex;
   gap: 8px;
+}
+.generating-status {
+  color: #409eff;
+  font-size: 13px;
+}
+.content-text {
+  min-height: 300px;
 }
 </style>
