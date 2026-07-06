@@ -8,9 +8,9 @@
 | 语言/框架 | Python 3.11 + FastAPI |
 | ORM | SQLAlchemy 2.0 (async) |
 | 数据库 | PostgreSQL 16 |
-| 基线版本 | v1 |
-| 生成时间 | 2026-06-16 |
-| Git commit | 9455dbf |
+| 基线版本 | v2 |
+| 生成时间 | 2026-07-06 |
+| Git commit | 610e4ba |
 
 ---
 
@@ -230,3 +230,4 @@ curl http://localhost:8000/api/health
 | 2026-07-03 | v1 | 增量验收（v1.3.0 DeepSeek API） | 5 | 1 | 0 | ⚠️ 有条件通过，contents.py API层含内联SQL查询 |
 | 2026-07-03 | v1 | 警告修复（SQL提取至service层） | 6 | 0 | 0 | ✅ 全部通过，API层零SQL，新增 validate_stream_request 消除跨层泄露 |
 | 2026-07-03 | v1 | 增量验收（性能+安全修复后） | 5 | 0 | 0 | ✅ 全部通过，新增 encrypt_api_key 加密存储，目录责任/分层/封装边界均合规 |
+| 2026-07-06 | v2 | 全量复查（v1.4.0 前端升级后） | 5 | 1 | 0 | ⚠️ 有条件通过，响应格式不一致(models/workspaces vs contents)不阻塞，修复测试速率限制bug |

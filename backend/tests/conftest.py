@@ -2,6 +2,8 @@ import asyncio
 import os
 from unittest.mock import AsyncMock, patch
 
+os.environ["PYTEST_RUNNING"] = "1"
+
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
