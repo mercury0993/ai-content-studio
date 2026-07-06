@@ -62,30 +62,37 @@ def _sse_error(message: str) -> str:
 
 
 async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: ContentGenerate) -> AsyncGenerator[str, None]:
+    logger.info(f"generate_content_stream: started, prompt={req.prompt_id} model={req.model_id}")
     try:
         prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id, Prompt.workspace_id == req.workspace_id))
         prompt = prompt_result.scalar_one_or_none()
         if not prompt:
+            logger.warning("generate_content_stream: Prompt not found")
             yield _sse_error("Prompt not found")
             return
 
         model_result = await db.execute(select(AIModel).where(AIModel.id == req.model_id, AIModel.workspace_id == req.workspace_id))
         model = model_result.scalar_one_or_none()
         if not model:
+            logger.warning("generate_content_stream: Model not found")
             yield _sse_error("Model not found")
             return
 
+        logger.info(f"generate_content_stream: using model name={model.name} provider={model.provider} model_name={model.model_name} base_url={model.base_url}")
         prompt_text = ai_service.build_prompt_text(prompt.content, req.variables)
+        logger.info(f"generate_content_stream: prompt built, length={len(prompt_text)}")
 
         start_time = time.time()
         full_text = ""
 
+        logger.info("generate_content_stream: calling deepseek_generate_stream")
         async for chunk in ai_service.deepseek_generate_stream(prompt_text, model):
             full_text += chunk
             escaped = chunk.replace("\n", "\ndata: ")
             yield f"data: {escaped}\n\n"
 
         generation_time_ms = int((time.time() - start_time) * 1000)
+        logger.info(f"generate_content_stream: got {len(full_text)} chars in {generation_time_ms}ms")
         content = Content(
             workspace_id=req.workspace_id,
             prompt_id=req.prompt_id,
@@ -99,9 +106,10 @@ async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: Con
         )
         db.add(content)
         await db.flush()
+        logger.info(f"generate_content_stream: saved content id={content.id}")
         yield f"event: done\ndata: {content.id}\n\n"
     except Exception as e:
-        logger.exception("Stream generation failed")
+        logger.exception("generate_content_stream: failed")
         yield _sse_error(str(e))
 
 

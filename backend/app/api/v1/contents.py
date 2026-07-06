@@ -1,3 +1,4 @@
+import logging
 import os
 import uuid
 
@@ -17,6 +18,7 @@ router = APIRouter(prefix="/contents", tags=["contents"])
 
 limiter = Limiter(key_func=get_remote_address)
 _is_test = os.getenv("PYTEST_RUNNING", "0") == "1"
+logger = logging.getLogger("ai-content-studio")
 
 
 def _limit(rate: str):
@@ -83,6 +85,7 @@ async def generate_content_stream(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+    logger.info(f"generate-stream: starting for prompt={req.prompt_id} model={req.model_id}")
     return StreamingResponse(
         content_service.generate_content_stream(db, current_user.id, req),
         media_type="text/event-stream",
