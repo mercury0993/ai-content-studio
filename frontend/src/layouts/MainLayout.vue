@@ -130,7 +130,11 @@ function handleWorkspaceChange(id: string) {
       </el-header>
 
       <el-main class="app-content">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </el-main>
     </el-container>
   </el-container>

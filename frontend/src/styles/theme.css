@@ -69,6 +69,11 @@
   --space-2xl: 32px;
   --space-3xl: 48px;
   --space-4xl: 64px;
+
+  /* === Easing Curves === */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* === Page Heading === */
@@ -188,4 +193,54 @@ a, .el-link {
 /* === Bolder: Active menu item glow === */
 .el-menu-item.is-active {
   box-shadow: inset 3px 0 0 var(--el-color-primary);
+}
+
+/* === Route Transitions === */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s var(--ease-out-quart);
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* === Card Entrance Stagger === */
+.stat-card-enter {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.stat-card-enter-active {
+  transition: opacity 0.35s var(--ease-out-expo), transform 0.35s var(--ease-out-expo);
+}
+
+/* === Button Micro-interactions === */
+.el-button--primary {
+  transition: transform 0.15s var(--ease-out-quart), box-shadow 0.15s var(--ease-out-quart);
+}
+.el-button--primary:hover {
+  transform: scale(1.03);
+}
+.el-button--primary:active {
+  transform: scale(0.97);
+}
+
+/* === Sidebar Collapse (fixed) === */
+.app-sidebar {
+  transition: width 0.25s var(--ease-out-expo);
+}
+
+/* === Skeleton Shimmer === */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -180,8 +180,8 @@ const statCards = [
       </el-col>
     </el-row>
     <el-row v-else :gutter="20" class="stat-row">
-      <el-col v-for="card in statCards" :key="card.key" :xs="12" :sm="12" :md="6" :lg="6">
-        <div class="stat-card" :style="{ background: card.bg }">
+      <el-col v-for="(card, idx) in statCards" :key="card.key" :xs="12" :sm="12" :md="6" :lg="6">
+        <div class="stat-card" :style="{ background: card.bg, '--i': idx }">
           <div class="stat-value" :style="{ color: card.color }">
             {{ (stats as any)[card.key] }}
           </div>
@@ -264,11 +264,25 @@ const statCards = [
   padding: 24px;
   border: 1px solid var(--el-border-color);
   text-align: center;
-  transition: box-shadow 0.2s ease;
+  transition: transform 0.2s var(--ease-out-quart), box-shadow 0.2s var(--ease-out-quart);
+  animation: card-enter 0.4s var(--ease-out-expo) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
 }
 
 .stat-card:hover {
-  box-shadow: var(--el-box-shadow-light);
+  transform: translateY(-2px);
+  box-shadow: var(--el-box-shadow);
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .stat-value {
