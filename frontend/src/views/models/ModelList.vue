@@ -99,7 +99,7 @@ async function handleSubmit() {
     resetForm()
     await fetchModels()
   } catch {
-    // handled by interceptor
+    ElMessage.error('操作失败，请重试')
   }
 }
 

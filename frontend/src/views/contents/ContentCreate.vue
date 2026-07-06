@@ -95,7 +95,7 @@ async function handleSubmitReview() {
     ElMessage.success('已提交审核')
     generatedContentId.value = ''
   } catch {
-    // handled by interceptor
+    ElMessage.error('提交审核失败，请重试')
   } finally {
     submitting.value = false
   }

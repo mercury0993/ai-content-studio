@@ -30,7 +30,7 @@ async function handleUpdateProfile() {
     await userStore.fetchUser()
     ElMessage.success('个人资料已更新')
   } catch {
-    // handled by interceptor
+    ElMessage.error('保存失败，请重试')
   } finally {
     profileLoading.value = false
   }
@@ -60,7 +60,7 @@ async function handleChangePassword() {
     passwordForm.new_password = ''
     passwordForm.confirm_password = ''
   } catch {
-    // handled by interceptor
+    ElMessage.error('密码修改失败，请重试')
   } finally {
     passwordLoading.value = false
   }

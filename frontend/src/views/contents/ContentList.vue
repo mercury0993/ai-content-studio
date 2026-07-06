@@ -54,7 +54,7 @@ async function handleSubmitReview(id: string) {
     ElMessage.success('已提交审核')
     await fetchContents()
   } catch {
-    // handled by interceptor
+    ElMessage.error('提交审核失败，请重试')
   }
 }
 

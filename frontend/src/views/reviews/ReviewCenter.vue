@@ -8,6 +8,7 @@ import { statusMap, truncate, formatDate } from '@/utils/common'
 import { useDebouncedWatch } from '@/composables/useDebouncedWatch'
 import SkeletonTable from '@/components/SkeletonTable.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useKeydown } from '@/composables/useKeydown'
 
 const workspaceStore = useWorkspaceStore()
 const reviews = ref<any[]>([])
@@ -50,6 +51,10 @@ onMounted(() => {
   fetchMembers()
 })
 useDebouncedWatch([page, statusFilter], fetchReviews, 300)
+useKeydown({
+  'Ctrl+Shift+a': () => handleBatch('approve'),
+  'Ctrl+Shift+r': () => handleBatch('reject'),
+})
 
 async function handleApprove(id: string) {
   try {
