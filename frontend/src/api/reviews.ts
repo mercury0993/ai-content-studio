@@ -1,4 +1,5 @@
 import request from './request'
+import type { ApiResponse, PaginatedResponse, ReviewItem } from './types'
 
 export function listReviews(params: {
   workspace_id: string
@@ -6,7 +7,7 @@ export function listReviews(params: {
   page?: number
   page_size?: number
 }) {
-  return request.get('/reviews', { params })
+  return request.get<ApiResponse<PaginatedResponse<ReviewItem>>>('/reviews', { params })
 }
 
 export function submitForReview(contentId: string, reviewerId?: string) {

@@ -1,19 +1,20 @@
 import request from './request'
+import type { WorkspaceItem, MemberItem } from './types'
 
 export function listWorkspaces() {
-  return request.get('/workspaces')
+  return request.get<WorkspaceItem[]>('/workspaces')
 }
 
 export function createWorkspace(data: { name: string; description?: string }) {
-  return request.post('/workspaces', data)
+  return request.post<WorkspaceItem>('/workspaces', data)
 }
 
 export function getWorkspace(id: string) {
-  return request.get(`/workspaces/${id}`)
+  return request.get<WorkspaceItem>(`/workspaces/${id}`)
 }
 
 export function updateWorkspace(id: string, data: { name?: string; description?: string }) {
-  return request.put(`/workspaces/${id}`, data)
+  return request.put<WorkspaceItem>(`/workspaces/${id}`, data)
 }
 
 export function deleteWorkspace(id: string) {
@@ -21,7 +22,7 @@ export function deleteWorkspace(id: string) {
 }
 
 export function listMembers(workspaceId: string) {
-  return request.get(`/workspaces/${workspaceId}/members`)
+  return request.get<MemberItem[]>(`/workspaces/${workspaceId}/members`)
 }
 
 export function addMember(workspaceId: string, data: { user_id: string; role: string }) {

@@ -1,7 +1,8 @@
 import request from './request'
+import type { ModelItem } from './types'
 
 export function listModels(workspaceId: string) {
-  return request.get('/models', { params: { workspace_id: workspaceId } })
+  return request.get<ModelItem[]>('/models', { params: { workspace_id: workspaceId } })
 }
 
 export function createModel(data: {
@@ -11,13 +12,20 @@ export function createModel(data: {
   api_key?: string
   base_url?: string
   model_name: string
-  default_params?: Record<string, any>
+  default_params?: Record<string, number>
 }) {
-  return request.post('/models', data)
+  return request.post<ModelItem>('/models', data)
 }
 
-export function updateModel(id: string, data: Record<string, any>) {
-  return request.put(`/models/${id}`, data)
+export function updateModel(id: string, data: {
+  name?: string
+  provider?: string
+  api_key?: string
+  base_url?: string
+  model_name?: string
+  default_params?: Record<string, number>
+}) {
+  return request.put<ModelItem>(`/models/${id}`, data)
 }
 
 export function deleteModel(id: string) {
@@ -25,5 +33,5 @@ export function deleteModel(id: string) {
 }
 
 export function toggleModel(id: string) {
-  return request.patch(`/models/${id}/toggle`)
+  return request.patch<ModelItem>(`/models/${id}/toggle`)
 }

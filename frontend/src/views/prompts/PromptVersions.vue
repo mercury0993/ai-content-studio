@@ -3,13 +3,14 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { listVersions, rollbackVersion } from '@/api/prompts'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { PromptVersionItem } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
-const versions = ref<any[]>([])
+const versions = ref<PromptVersionItem[]>([])
 
 onMounted(async () => {
-  versions.value = await listVersions(route.params.id as string) as any
+  versions.value = (await listVersions(route.params.id as string)).data
 })
 
 async function handleRollback(version: number) {

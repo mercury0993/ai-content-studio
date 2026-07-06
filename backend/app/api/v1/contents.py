@@ -85,7 +85,7 @@ async def generate_content_stream(
 
     return StreamingResponse(
         content_service.generate_content_stream(db, current_user.id, req),
-        media_type="text/plain",
+        media_type="text/event-stream",
         headers={"X-Accel-Buffering": "no"},
     )
 

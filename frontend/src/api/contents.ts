@@ -1,4 +1,5 @@
 import request from './request'
+import type { ApiResponse, PaginatedResponse, ContentItem } from './types'
 
 export function listContents(params: {
   workspace_id: string
@@ -6,7 +7,7 @@ export function listContents(params: {
   page?: number
   page_size?: number
 }) {
-  return request.get('/contents', { params })
+  return request.get<ApiResponse<PaginatedResponse<ContentItem>>>('/contents', { params })
 }
 
 export function generateContent(data: {
@@ -15,7 +16,32 @@ export function generateContent(data: {
   model_id: string
   variables?: Record<string, string>
 }) {
-  return request.post('/contents/generate', data)
+  return request.post<ContentItem>('/contents/generate', data)
+}
+
+function parseSSE(buffer: string): { events: { event: string; data: string }[]; remainder: string } {
+  const events: { event: string; data: string }[] = []
+  const lines = buffer.split('\n')
+  const remainder = lines.pop() || ''
+
+  let currentEvent = ''
+  let currentData = ''
+
+  for (const line of lines) {
+    if (line.startsWith('event: ')) {
+      currentEvent = line.slice(7)
+    } else if (line.startsWith('data: ')) {
+      currentData += (currentData ? '\n' : '') + line.slice(6)
+    } else if (line === '') {
+      if (currentData) {
+        events.push({ event: currentEvent || 'message', data: currentData })
+        currentEvent = ''
+        currentData = ''
+      }
+    }
+  }
+
+  return { events, remainder }
 }
 
 export async function generateContentStream(
@@ -26,7 +52,7 @@ export async function generateContentStream(
     variables?: Record<string, string>
   },
   onChunk: (text: string) => void,
-  onDone: () => void,
+  onDone: (contentId: string) => void,
   onError: (error: string) => void,
 ) {
   const token = localStorage.getItem('access_token')
@@ -48,24 +74,36 @@ export async function generateContentStream(
 
     const reader = response.body!.getReader()
     const decoder = new TextDecoder()
+    let buffer = ''
 
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
-      onChunk(decoder.decode(value, { stream: true }))
+      buffer += decoder.decode(value, { stream: true })
+
+      const { events, remainder } = parseSSE(buffer)
+      buffer = remainder
+
+      for (const ev of events) {
+        if (ev.event === 'done') {
+          onDone(ev.data)
+        } else {
+          onChunk(ev.data)
+        }
+      }
     }
-    onDone()
+    onDone('')
   } catch {
     onError('网络请求失败')
   }
 }
 
 export function getContent(id: string) {
-  return request.get(`/contents/${id}`)
+  return request.get<ContentItem>(`/contents/${id}`)
 }
 
 export function updateContent(id: string, data: { edited_text?: string }) {
-  return request.put(`/contents/${id}`, data)
+  return request.put<ContentItem>(`/contents/${id}`, data)
 }
 
 export function deleteContent(id: string) {

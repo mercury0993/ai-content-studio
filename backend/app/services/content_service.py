@@ -70,9 +70,9 @@ async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: Con
 
     async for chunk in ai_service.deepseek_generate_stream(prompt_text, model):
         full_text += chunk
-        yield chunk
+        escaped = chunk.replace("\n", "\ndata: ")
+        yield f"data: {escaped}\n\n"
 
-    # Save generated content to DB after stream completes
     generation_time_ms = int((time.time() - start_time) * 1000)
     content = Content(
         workspace_id=req.workspace_id,
@@ -87,7 +87,7 @@ async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: Con
     )
     db.add(content)
     await db.flush()
-    yield f"\n__CID__:{content.id}\n"
+    yield f"event: done\ndata: {content.id}\n\n"
 
 
 async def list_contents(

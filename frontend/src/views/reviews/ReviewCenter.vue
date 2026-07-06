@@ -9,9 +9,10 @@ import { useDebouncedWatch } from '@/composables/useDebouncedWatch'
 import SkeletonTable from '@/components/SkeletonTable.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useKeydown } from '@/composables/useKeydown'
+import type { ReviewItem, MemberItem } from '@/api/types'
 
 const workspaceStore = useWorkspaceStore()
-const reviews = ref<any[]>([])
+const reviews = ref<ReviewItem[]>([])
 const total = ref(0)
 const page = ref(1)
 const statusFilter = ref('')
@@ -20,7 +21,7 @@ const firstLoad = ref(true)
 const selectedIds = ref<string[]>([])
 const showSubmitDialog = ref(false)
 const showRejectDialog = ref(false)
-const members = ref<any[]>([])
+const members = ref<MemberItem[]>([])
 const submitForm = ref({ content_id: '', reviewer_id: '' })
 const rejectForm = ref({ content_id: '', comment: '' })
 
@@ -43,7 +44,7 @@ async function fetchReviews() {
 
 async function fetchMembers() {
   if (!workspaceStore.currentWorkspace) return
-  members.value = await listMembers(workspaceStore.currentWorkspace.id) as any
+  members.value = (await listMembers(workspaceStore.currentWorkspace.id)).data
 }
 
 onMounted(() => {

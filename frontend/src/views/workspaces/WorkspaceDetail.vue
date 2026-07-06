@@ -3,17 +3,18 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getWorkspace, listMembers, addMember, removeMember } from '@/api/workspaces'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { WorkspaceItem, MemberItem } from '@/api/types'
 
 const route = useRoute()
-const workspace = ref<any>(null)
-const members = ref<any[]>([])
+const workspace = ref<WorkspaceItem | null>(null)
+const members = ref<MemberItem[]>([])
 const showAddMember = ref(false)
 const newMember = ref({ user_id: '', role: 'viewer' })
 
 onMounted(async () => {
   const id = route.params.id as string
-  workspace.value = await getWorkspace(id)
-  members.value = await listMembers(id) as any
+  workspace.value = (await getWorkspace(id)).data
+  members.value = (await listMembers(id)).data
 })
 
 async function handleAddMember() {
@@ -25,7 +26,7 @@ async function handleAddMember() {
     await addMember(route.params.id as string, newMember.value)
     ElMessage.success('添加成功')
     showAddMember.value = false
-    members.value = await listMembers(route.params.id as string) as any
+    members.value = (await listMembers(route.params.id as string)).data
   } catch {
     ElMessage.error('操作失败，请重试')
   }
@@ -35,7 +36,7 @@ async function handleRemoveMember(userId: string) {
   await ElMessageBox.confirm('确定移除该成员？', '提示', { type: 'warning' })
   await removeMember(route.params.id as string, userId)
   ElMessage.success('已移除')
-  members.value = await listMembers(route.params.id as string) as any
+  members.value = (await listMembers(route.params.id as string)).data
 }
 </script>
 

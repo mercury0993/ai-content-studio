@@ -7,13 +7,14 @@ import { listModels } from '@/api/aiModels'
 import { generateContentStream } from '@/api/contents'
 import { submitForReview } from '@/api/reviews'
 import { ElMessage } from 'element-plus'
+import type { PromptItem, ModelItem } from '@/api/types'
 
 const router = useRouter()
 const workspaceStore = useWorkspaceStore()
 
-const prompts = ref<any[]>([])
-const models = ref<any[]>([])
-const selectedPrompt = ref<any>(null)
+const prompts = ref<PromptItem[]>([])
+const models = ref<ModelItem[]>([])
+const selectedPrompt = ref<string | null>(null)
 const selectedModelId = ref('')
 const variables = ref<Record<string, string>>({})
 const generating = ref(false)
@@ -24,9 +25,9 @@ const submitting = ref(false)
 
 onMounted(async () => {
   if (!workspaceStore.currentWorkspace) return
-  const promptData: any = await listPrompts({ workspace_id: workspaceStore.currentWorkspace.id, page_size: 100 })
-  prompts.value = promptData.data.items
-  models.value = await listModels(workspaceStore.currentWorkspace.id) as any
+  const promptRes = await listPrompts({ workspace_id: workspaceStore.currentWorkspace.id, page_size: 100 })
+  prompts.value = promptRes.data.data.items
+  models.value = (await listModels(workspaceStore.currentWorkspace.id)).data
 })
 
 function onPromptChange() {
@@ -67,16 +68,10 @@ async function handleGenerate() {
       variables: variables.value,
     },
     (chunk: string) => {
-      const cidMarker = '__CID__:'
-      if (chunk.includes(cidMarker)) {
-        const [text, cid] = chunk.split(cidMarker)
-        resultText.value += text
-        generatedContentId.value = cid.replace(/\n/g, '').trim()
-      } else {
-        resultText.value += chunk
-      }
+      resultText.value += chunk
     },
-    () => {
+    (contentId: string) => {
+      generatedContentId.value = contentId
       generating.value = false
     },
     (error: string) => {

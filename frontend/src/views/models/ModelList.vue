@@ -5,11 +5,12 @@ import { listModels, createModel, updateModel, deleteModel, toggleModel } from '
 import { canEdit } from '@/utils/permission'
 import SkeletonTable from '@/components/SkeletonTable.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { ModelItem } from '@/api/types'
 
 const workspaceStore = useWorkspaceStore()
-const models = ref<any[]>([])
+const models = ref<ModelItem[]>([])
 const showCreate = ref(false)
-const editingModel = ref<any>(null)
+const editingModel = ref<ModelItem | null>(null)
 const loading = ref(false)
 const firstLoad = ref(true)
 
@@ -52,7 +53,7 @@ async function fetchModels() {
   }
   loading.value = true
   try {
-    models.value = await listModels(workspaceStore.currentWorkspace.id) as any
+    models.value = (await listModels(workspaceStore.currentWorkspace.id)).data
     firstLoad.value = false
   } finally {
     loading.value = false

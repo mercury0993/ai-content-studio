@@ -1,4 +1,5 @@
 import request from './request'
+import type { ApiResponse, PaginatedResponse, PromptItem, PromptVersionItem } from './types'
 
 export function listPrompts(params: {
   workspace_id: string
@@ -7,7 +8,7 @@ export function listPrompts(params: {
   page?: number
   page_size?: number
 }) {
-  return request.get('/prompts', { params })
+  return request.get<ApiResponse<PaginatedResponse<PromptItem>>>('/prompts', { params })
 }
 
 export function createPrompt(data: {
@@ -17,11 +18,11 @@ export function createPrompt(data: {
   category?: string
   tags?: string[]
 }) {
-  return request.post('/prompts', data)
+  return request.post<PromptItem>('/prompts', data)
 }
 
 export function getPrompt(id: string) {
-  return request.get(`/prompts/${id}`)
+  return request.get<PromptItem>(`/prompts/${id}`)
 }
 
 export function updatePrompt(id: string, data: {
@@ -31,7 +32,7 @@ export function updatePrompt(id: string, data: {
   tags?: string[]
   is_favorite?: boolean
 }) {
-  return request.put(`/prompts/${id}`, data)
+  return request.put<PromptItem>(`/prompts/${id}`, data)
 }
 
 export function deletePrompt(id: string) {
@@ -39,7 +40,7 @@ export function deletePrompt(id: string) {
 }
 
 export function listVersions(promptId: string) {
-  return request.get(`/prompts/${promptId}/versions`)
+  return request.get<PromptVersionItem[]>(`/prompts/${promptId}/versions`)
 }
 
 export function rollbackVersion(promptId: string, version: number) {
