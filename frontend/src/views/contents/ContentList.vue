@@ -95,7 +95,11 @@ function handleBatchExport() {
     <SkeletonTable v-if="firstLoad && loading" />
 
     <template v-else-if="contents.length === 0">
-      <el-empty description="暂无内容" />
+      <el-empty description="暂无内容，先生成一个吧">
+        <template #default>
+          <el-button v-if="canEdit()" type="primary" @click="router.push('/contents/create')">生成第一篇内容</el-button>
+        </template>
+      </el-empty>
     </template>
 
     <template v-else>

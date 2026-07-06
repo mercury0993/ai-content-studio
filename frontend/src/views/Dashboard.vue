@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { getStats, getTrend, getModelUsage, getUserRanking, getRecent } from '@/api/dashboard'
 import { statusMap } from '@/utils/common'
@@ -14,6 +14,14 @@ const workspaceStore = useWorkspaceStore()
 const stats = ref({ prompt_count: 0, content_count: 0, monthly_generated: 0, pending_review: 0 })
 const recentItems = ref<any[]>([])
 const firstLoad = ref(true)
+
+const isEmpty = computed(() =>
+  !firstLoad.value &&
+  stats.value.prompt_count === 0 &&
+  stats.value.content_count === 0 &&
+  stats.value.monthly_generated === 0 &&
+  stats.value.pending_review === 0
+)
 
 const trendChartRef = ref<HTMLElement>()
 const modelChartRef = ref<HTMLElement>()
@@ -174,6 +182,35 @@ const statCards = [
   <div>
     <h3 class="page-heading">数据看板</h3>
 
+    <div v-if="isEmpty && !firstLoad" class="empty-guide">
+      <div class="empty-guide-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+      </div>
+      <h4 class="empty-guide-title">欢迎使用 AI Content Studio</h4>
+      <p class="empty-guide-desc">三步即可开始 AI 内容创作</p>
+      <div class="empty-guide-steps">
+        <div class="guide-step">
+          <span class="step-num">1</span>
+          <span>新建一个 Prompt 模板，定义内容和变量</span>
+        </div>
+        <div class="guide-step">
+          <span class="step-num">2</span>
+          <span>配置 AI 模型，填入 API Key</span>
+        </div>
+        <div class="guide-step">
+          <span class="step-num">3</span>
+          <span>选择模板和模型，一键生成内容</span>
+        </div>
+      </div>
+      <div class="empty-guide-actions">
+        <el-button type="primary" @click="$router.push('/prompts/create')">新建 Prompt</el-button>
+        <el-button @click="$router.push('/models')">配置模型</el-button>
+      </div>
+    </div>
+
+    <template v-if="!isEmpty || firstLoad">
     <el-row v-if="firstLoad" :gutter="20" class="stat-row">
       <el-col v-for="i in 4" :key="i" :xs="12" :sm="12" :md="6" :lg="6">
         <SkeletonCard />
@@ -251,10 +288,71 @@ const statCards = [
         </div>
       </el-col>
     </el-row>
+    </template>
   </div>
 </template>
 
 <style scoped>
+.empty-guide {
+  text-align: center;
+  padding: var(--space-4xl) var(--space-xl);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.empty-guide-icon {
+  color: var(--el-color-primary);
+  opacity: 0.6;
+  margin-bottom: var(--space-lg);
+}
+
+.empty-guide-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.empty-guide-desc {
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
+  margin-bottom: var(--space-2xl);
+}
+
+.empty-guide-steps {
+  text-align: left;
+  margin-bottom: var(--space-xl);
+}
+
+.guide-step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+  font-size: 14px;
+  color: var(--el-text-color-regular);
+}
+
+.step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.empty-guide-actions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+}
+
 .stat-row {
   margin-bottom: var(--space-xl);
 }

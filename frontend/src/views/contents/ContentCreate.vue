@@ -112,7 +112,7 @@ function handleCopy() {
     <h3 class="page-heading">生成内容</h3>
     <el-form label-width="100px" class="generate-form">
       <el-form-item label="Prompt 模板">
-        <el-select v-model="selectedPrompt" placeholder="选择 Prompt" @change="onPromptChange" class="full-width">
+        <el-select v-model="selectedPrompt" placeholder="选择一个 Prompt 模板" @change="onPromptChange" class="full-width">
           <el-option v-for="p in prompts" :key="p.id" :label="p.title" :value="p.id" />
         </el-select>
       </el-form-item>

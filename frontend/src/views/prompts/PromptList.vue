@@ -90,7 +90,11 @@ function goVersions(id: string) {
     <SkeletonTable v-if="firstLoad && loading" />
 
     <template v-else-if="prompts.length === 0">
-      <el-empty description="暂无 Prompt 模板" />
+      <el-empty description="还没有 Prompt 模板，创建第一个开始吧">
+        <template #default>
+          <el-button v-if="canEdit()" type="primary" @click="router.push('/prompts/create')">新建 Prompt</el-button>
+        </template>
+      </el-empty>
     </template>
 
     <template v-else>
