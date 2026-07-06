@@ -75,6 +75,8 @@ export async function generateContentStream(
     const reader = response.body!.getReader()
     const decoder = new TextDecoder()
     let buffer = ''
+    let doneReceived = false
+    let streamError: string | null = null
 
     while (true) {
       const { done, value } = await reader.read()
@@ -86,14 +88,22 @@ export async function generateContentStream(
 
       for (const ev of events) {
         if (ev.event === 'done') {
+          doneReceived = true
           onDone(ev.data)
+        } else if (ev.event === 'error') {
+          streamError = ev.data
+          onError(ev.data)
         } else {
           onChunk(ev.data)
         }
       }
     }
-    onDone('')
-  } catch {
+
+    if (!doneReceived && !streamError) {
+      onDone('')
+    }
+  } catch (e) {
+    console.error('generateContentStream failed:', e)
     onError('网络请求失败')
   }
 }

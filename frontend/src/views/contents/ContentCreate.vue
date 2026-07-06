@@ -45,7 +45,10 @@ async function handleGenerate() {
     ElMessage.warning('请选择 Prompt 和模型')
     return
   }
-  if (!workspaceStore.currentWorkspace) return
+  if (!workspaceStore.currentWorkspace) {
+    ElMessage.warning('请先选择工作空间')
+    return
+  }
 
   const prompt = prompts.value.find((p) => p.id === selectedPrompt.value)
   for (const v of prompt?.variables || []) {

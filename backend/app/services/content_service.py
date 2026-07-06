@@ -1,3 +1,4 @@
+import logging
 import time
 import uuid
 from typing import AsyncGenerator
@@ -10,6 +11,8 @@ from app.models.prompt import Prompt
 from app.models.ai_model import AIModel
 from app.schemas.content import ContentGenerate, ContentUpdate
 from app.services import ai_service
+
+logger = logging.getLogger("ai-content-studio")
 
 
 async def generate_content(db: AsyncSession, user_id: uuid.UUID, req: ContentGenerate) -> Content:
@@ -52,42 +55,54 @@ async def validate_stream_request(db: AsyncSession, req: ContentGenerate) -> Non
         raise ValueError("Model not found")
 
 
+def _sse_error(message: str) -> str:
+    """Format an error as an SSE event so the frontend can display it."""
+    safe = str(message).replace("\n", " ").replace('"', "'")
+    return f"event: error\ndata: {safe}\n\n"
+
+
 async def generate_content_stream(db: AsyncSession, user_id: uuid.UUID, req: ContentGenerate) -> AsyncGenerator[str, None]:
-    prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id, Prompt.workspace_id == req.workspace_id))
-    prompt = prompt_result.scalar_one_or_none()
-    if not prompt:
-        raise ValueError("Prompt not found")
+    try:
+        prompt_result = await db.execute(select(Prompt).where(Prompt.id == req.prompt_id, Prompt.workspace_id == req.workspace_id))
+        prompt = prompt_result.scalar_one_or_none()
+        if not prompt:
+            yield _sse_error("Prompt not found")
+            return
 
-    model_result = await db.execute(select(AIModel).where(AIModel.id == req.model_id, AIModel.workspace_id == req.workspace_id))
-    model = model_result.scalar_one_or_none()
-    if not model:
-        raise ValueError("Model not found")
+        model_result = await db.execute(select(AIModel).where(AIModel.id == req.model_id, AIModel.workspace_id == req.workspace_id))
+        model = model_result.scalar_one_or_none()
+        if not model:
+            yield _sse_error("Model not found")
+            return
 
-    prompt_text = ai_service.build_prompt_text(prompt.content, req.variables)
+        prompt_text = ai_service.build_prompt_text(prompt.content, req.variables)
 
-    start_time = time.time()
-    full_text = ""
+        start_time = time.time()
+        full_text = ""
 
-    async for chunk in ai_service.deepseek_generate_stream(prompt_text, model):
-        full_text += chunk
-        escaped = chunk.replace("\n", "\ndata: ")
-        yield f"data: {escaped}\n\n"
+        async for chunk in ai_service.deepseek_generate_stream(prompt_text, model):
+            full_text += chunk
+            escaped = chunk.replace("\n", "\ndata: ")
+            yield f"data: {escaped}\n\n"
 
-    generation_time_ms = int((time.time() - start_time) * 1000)
-    content = Content(
-        workspace_id=req.workspace_id,
-        prompt_id=req.prompt_id,
-        model_id=req.model_id,
-        variables_used=req.variables or {},
-        generated_text=full_text,
-        status=ContentStatus.DRAFT,
-        token_usage=0,
-        generation_time_ms=generation_time_ms,
-        created_by=user_id,
-    )
-    db.add(content)
-    await db.flush()
-    yield f"event: done\ndata: {content.id}\n\n"
+        generation_time_ms = int((time.time() - start_time) * 1000)
+        content = Content(
+            workspace_id=req.workspace_id,
+            prompt_id=req.prompt_id,
+            model_id=req.model_id,
+            variables_used=req.variables or {},
+            generated_text=full_text,
+            status=ContentStatus.DRAFT,
+            token_usage=0,
+            generation_time_ms=generation_time_ms,
+            created_by=user_id,
+        )
+        db.add(content)
+        await db.flush()
+        yield f"event: done\ndata: {content.id}\n\n"
+    except Exception as e:
+        logger.exception("Stream generation failed")
+        yield _sse_error(str(e))
 
 
 async def list_contents(
