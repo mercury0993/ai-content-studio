@@ -11,7 +11,14 @@ import { ElMessage } from 'element-plus'
 
 const workspaceStore = useWorkspaceStore()
 
-const stats = ref({ prompt_count: 0, content_count: 0, monthly_generated: 0, pending_review: 0 })
+interface DashboardStats {
+  prompt_count: number
+  content_count: number
+  monthly_generated: number
+  pending_review: number
+}
+
+const stats = ref<DashboardStats>({ prompt_count: 0, content_count: 0, monthly_generated: 0, pending_review: 0 })
 const recentItems = ref<any[]>([])
 const firstLoad = ref(true)
 
@@ -170,7 +177,7 @@ onUnmounted(() => {
 
 watch(() => workspaceStore.currentWorkspace, fetchDashboard)
 
-const statCards = [
+const statCards: { key: keyof DashboardStats; label: string; color: string; bg: string }[] = [
   { key: 'prompt_count', label: 'Prompt 总数', color: 'var(--el-color-primary)', bg: 'var(--el-color-primary-light-9)' },
   { key: 'content_count', label: '内容总数', color: 'var(--el-color-success)', bg: 'oklch(92% 0.04 145)' },
   { key: 'monthly_generated', label: '本月生成', color: 'var(--el-color-warning)', bg: 'oklch(93% 0.04 72)' },
@@ -220,7 +227,7 @@ const statCards = [
       <el-col v-for="(card, idx) in statCards" :key="card.key" :xs="12" :sm="12" :md="6" :lg="6">
         <div class="stat-card" :style="{ background: card.bg, '--i': idx }">
           <div class="stat-value" :style="{ color: card.color }">
-            {{ (stats as any)[card.key] }}
+            {{ stats[card.key] }}
           </div>
           <div class="stat-label">{{ card.label }}</div>
         </div>
@@ -275,7 +282,7 @@ const statCards = [
               </el-table-column>
               <el-table-column label="状态" width="90">
                 <template #default="{ row }">
-                  <el-tag :type="statusMap[row.status]?.type as any" size="small">{{ statusMap[row.status]?.label }}</el-tag>
+                  <el-tag :type="statusMap[row.status]?.type" size="small">{{ statusMap[row.status]?.label }}</el-tag>
                 </template>
               </el-table-column>
               <el-table-column label="时间" width="150">

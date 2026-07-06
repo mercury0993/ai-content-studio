@@ -112,7 +112,7 @@ function handleBatchExport() {
         </el-table-column>
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="statusMap[row.status]?.type as any">{{ statusMap[row.status]?.label }}</el-tag>
+            <el-tag :type="statusMap[row.status]?.type">{{ statusMap[row.status]?.label }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="Token" width="100">

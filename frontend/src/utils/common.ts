@@ -1,4 +1,6 @@
-export const statusMap: Record<string, { label: string; type: string }> = {
+type TagType = 'primary' | 'success' | 'warning' | 'danger' | 'info' | ''
+
+export const statusMap: Record<string, { label: string; type: TagType }> = {
   draft: { label: '草稿', type: 'info' },
   pending_review: { label: '待审核', type: 'warning' },
   approved: { label: '已通过', type: 'success' },
