@@ -24,6 +24,25 @@
   --el-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --el-font-size-base: 14px;
 
+  /* Type Scale (1.2 ratio for product UI) */
+  --text-xs: 0.75rem;    /* 12px — captions, table headers */
+  --text-sm: 0.875rem;   /* 14px — secondary UI, metadata */
+  --text-base: 1rem;     /* 16px — body, content text */
+  --text-lg: 1.25rem;    /* 20px — page headings */
+  --text-xl: 1.5rem;     /* 24px — section headings */
+  --text-2xl: 2.25rem;   /* 36px — stat values, hero numbers */
+
+  /* Line Heights */
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* Weight Roles */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
   /* === Backgrounds === */
   --el-bg-color: oklch(1.00 0.000 0);
   --el-bg-color-page: oklch(97.2% 0.003 278);
@@ -78,11 +97,12 @@
 
 /* === Page Heading === */
 .page-heading {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
   color: var(--el-text-color-primary);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-xl);
   letter-spacing: -0.01em;
+  line-height: var(--leading-tight);
 }
 
 /* === Card Refinements === */
@@ -104,6 +124,10 @@
   --el-table-border-color: var(--el-border-color-light);
   border-radius: 8px;
   overflow: hidden;
+}
+
+.el-table .el-table__body-wrapper {
+  font-variant-numeric: tabular-nums;
 }
 
 .el-table th.el-table__cell {
@@ -188,6 +212,12 @@
 /* === Bolder: Accent links === */
 a, .el-link {
   color: var(--color-accent);
+}
+
+/* === Content Text (generated text, previews) === */
+.content-text {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
 }
 
 /* === Bolder: Active menu item glow === */

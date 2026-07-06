@@ -54,7 +54,7 @@ function handleExportMarkdown() {
       <el-descriptions-item label="创建时间">{{ formatDate(content.created_at) }}</el-descriptions-item>
     </el-descriptions>
 
-    <el-input v-model="editText" type="textarea" :rows="15" :readonly="!editing" />
+    <el-input v-model="editText" type="textarea" :rows="15" :readonly="!editing" class="content-text" />
   </div>
 </template>
 

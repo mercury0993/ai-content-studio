@@ -141,7 +141,7 @@ function handleCopy() {
           <el-button size="small" @click="handleCopy" :disabled="generating">复制</el-button>
         </div>
       </div>
-      <el-input type="textarea" :model-value="resultText" :rows="15" readonly />
+      <el-input type="textarea" :model-value="resultText" :rows="15" readonly class="content-text" />
     </div>
   </div>
 </template>
