@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { listPrompts } from '@/api/prompts'
@@ -23,6 +23,7 @@ const resultText = ref('')
 const showResult = ref(false)
 const generatedContentId = ref('')
 const submitting = ref(false)
+const resultTextarea = ref<any>(null)
 
 onMounted(async () => {
   if (!workspaceStore.currentWorkspace) {
@@ -97,6 +98,10 @@ async function handleGenerate() {
         generationStatus.value = '正在生成内容...'
       }
       resultText.value += chunk
+      nextTick(() => {
+        const ta = resultTextarea.value?.$el?.querySelector('textarea')
+        if (ta) ta.scrollTop = ta.scrollHeight
+      })
     },
     (contentId: string) => {
       console.log('handleGenerate: done, contentId:', contentId)
@@ -171,6 +176,7 @@ function handleCopy() {
         </div>
       </div>
       <el-input
+        ref="resultTextarea"
         type="textarea"
         :model-value="resultText"
         :rows="15"

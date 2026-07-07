@@ -21,6 +21,8 @@ const firstLoad = ref(true)
 const selectedIds = ref<string[]>([])
 const showSubmitDialog = ref(false)
 const showRejectDialog = ref(false)
+const showContentDialog = ref(false)
+const viewingContent = ref('')
 const members = ref<MemberItem[]>([])
 const submitForm = ref({ content_id: '', reviewer_id: '' })
 const rejectForm = ref({ content_id: '', comment: '' })
@@ -74,6 +76,11 @@ async function handleApprove(id: string) {
   } catch {
     // error already shown by axios interceptor
   }
+}
+
+function viewContent(text: string) {
+  viewingContent.value = text
+  showContentDialog.value = true
 }
 
 function openReject(id: string) {
@@ -171,7 +178,9 @@ function handleSelectionChange(rows: any[]) {
         <el-table-column type="selection" width="55" />
         <el-table-column label="内容预览" min-width="250">
           <template #default="{ row }">
-            <span>{{ truncate(row.edited_text || row.generated_text, 60) }}</span>
+            <span class="content-preview" @click="viewContent(row.edited_text || row.generated_text)">
+              {{ truncate(row.edited_text || row.generated_text, 60) }}
+            </span>
           </template>
         </el-table-column>
         <el-table-column label="状态" width="100">
@@ -233,10 +242,21 @@ function handleSelectionChange(rows: any[]) {
         <el-button type="danger" @click="handleReject">驳回</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="showContentDialog" title="完整内容" width="700px">
+      <el-input type="textarea" :model-value="viewingContent" :rows="20" readonly />
+    </el-dialog>
   </div>
 </template>
 
 <style scoped>
+.content-preview {
+  cursor: pointer;
+  color: #409eff;
+}
+.content-preview:hover {
+  text-decoration: underline;
+}
 .page-header {
   display: flex;
   justify-content: space-between;
