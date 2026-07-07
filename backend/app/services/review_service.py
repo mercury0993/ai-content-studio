@@ -93,6 +93,7 @@ async def reject_content(db: AsyncSession, content_id: uuid.UUID, reviewer_id: u
 
     _log_audit(db, reviewer_id, "content.reject", "content", content_id, {"comment": comment})
     await db.flush()
+    await db.refresh(content)
     return content
 
 
