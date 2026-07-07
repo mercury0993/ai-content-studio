@@ -19,7 +19,7 @@ async function downloadBlob(url: string, filename: string, method: 'GET' | 'POST
 }
 
 export function exportMarkdown(contentId: string) {
-  return downloadBlob(`/contents/${contentId}/export/markdown`, `content_${contentId.slice(0, 8)}.md`)
+  return downloadBlob(`/export/markdown/${contentId}`, `content_${contentId.slice(0, 8)}.md`)
 }
 
 export function exportZip(contentIds: string[]) {
