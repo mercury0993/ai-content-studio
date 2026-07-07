@@ -4,7 +4,7 @@
 
 AI 内容工坊后台管理系统，基于 Prompt 模板的 AI 内容生成、审核、管理平台。
 
-**当前版本：** v1.4.0 | **启动：** `docker compose up -d` | **[Release 历史](https://github.com/mercury0993/ai-content-studio/releases)**
+**当前版本：** v1.4.2 | **启动：** `docker compose up -d` | **[Release 历史](https://github.com/mercury0993/ai-content-studio/releases)**
 
 ## 功能完成度
 
