@@ -1,5 +1,6 @@
 import io
 import uuid
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -9,6 +10,12 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.user import User
 from app.services import workspace_service, export_service
+
+
+def _safe_content_disposition(filename: str) -> str:
+    """Build a Content-Disposition header value that supports non-ASCII filenames."""
+    encoded = quote(filename, safe="")
+    return f"attachment; filename*=UTF-8''{encoded}"
 
 router = APIRouter(prefix="/export", tags=["export"])
 
@@ -33,8 +40,8 @@ async def export_markdown(
 
     return StreamingResponse(
         io.BytesIO(text.encode("utf-8")),
-        media_type="text/markdown",
-        headers={"Content-Disposition": f"attachment; filename={filename}"},
+        media_type="text/markdown; charset=utf-8",
+        headers={"Content-Disposition": _safe_content_disposition(filename)},
     )
 
 
